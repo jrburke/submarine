@@ -1,0 +1,26 @@
+{
+    "name": "submarine",
+    "id": "submarine",
+    "version": "0.0.1",
+    "description": "Playing with web browser location stuff",
+    "keywords": [ "location" ],
+    "author": "James Burke <jrburke@gmail.com>",
+    "homepage": "https://github.com/jrburke/submarine",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jrburke/submarine"
+    },
+    "dependencies": {
+        "requirejs": ">=1.0.0",
+        "node-static": ">=0.5.9"
+    },
+    "main": "./server.js",
+    "engines": {
+      "node": ">=0.4.x"
+    },
+    "licenses": [
+        {
+            "type": "MPL"
+        }
+    ]
+}

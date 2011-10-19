@@ -1,0 +1,9 @@
+
+#errorOut {
+    background-color: red;
+}
+
+#map {
+    width: 320px;
+    height: 480px;
+}
