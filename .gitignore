@@ -2,3 +2,4 @@
 node_modules
 phonegap/ios/www
 phonegap/android/assets/www
+phonegap/android/bin/submarine.apk
