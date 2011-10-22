@@ -9,9 +9,19 @@ if (!navigator.geolocation) {
 }
 
 define(function (require) {
+
+  //These two dependencies do not return usable values, just used to
+  //trigger loading.
+  require('env!env/phonegap');
+  require('env!env/SMSComposer');
+
   //This function will not be called until the DOM is ready, because of the
   //domReady! plugin.
   var doc = require('domReady!'),
+
+      //This function will also not be called until the device is ready.
+      device = require('deviceReady!'),
+
       $ = require('jquery'),
       maps = require('http://maps.googleapis.com/maps/api/js?sensor=true&callback=define'),
 

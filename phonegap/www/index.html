@@ -4,26 +4,13 @@
   <title>Submarine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
   <meta charset="utf-8">
-
   <link rel="stylesheet" href="style.css" type="text/css" media="screen">
-  <script charset="utf-8" src="phonegap-1.1.0.js"></script>
-  <script charset="utf=8" src="SMSComposer.js"></script>
-  <script>
-
-    function onBodyLoad() {
-      document.addEventListener("deviceready", onDeviceReady, false);
-    }
-
-    /* When this function is called, PhoneGap has been initialized and is ready to roll */
-    function onDeviceReady() {
-      // do your thing!
-    }
-
-  </script>
   <script data-main="js/index" src="js/require.js"></script>
 </head>
-<body onload="onBodyLoad()">
+<body>
   <h1>Submarine</h1>
+
+  <div id="deviceProperties"></div>
 
   <a id="sendSms" href="#">SMS</a>
 
