@@ -12,7 +12,9 @@
     },
     "dependencies": {
         "requirejs": ">=1.0.0",
-        "node-static": ">=0.5.9"
+        "node-static": ">=0.5.9",
+        "redis": ">=0.6.7",
+        "socket.io": ">=0.8.5"
     },
     "main": "./server.js",
     "engines": {

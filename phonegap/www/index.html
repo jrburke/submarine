@@ -7,26 +7,156 @@
   <link rel="stylesheet" href="style.css" type="text/css" media="screen">
   <script data-main="js/index" src="js/require.js"></script>
 </head>
-<body>
-  <h1>Submarine</h1>
+  <body>
+    <div id="cardContainer">
+      <div id="cards">
+        <div data-cardid="signIn" title="Sign In" class="card noiscroll">
+          <div class="scroller">
+            <!-- a class="homeNav browserSignIn" data-nonav="nonav" href="#browserSignIn">Sign In With BrowserID</a -->
+            <form class="signInForm" action="#">
+              <input type="text" name="displayName" value="" placeholder="name">
+              <input type="email" name="email" value="" placeholder="email">
+              <input type="submit" name="go" value"Go">
+            </form>
+          </div>
+        </div>
+        <div data-cardid="start" title="Deuxdrop" class="card noiscroll">
+          <div class="scroller">
+            <a class="homeNav" href="#shareLocation">Share Location With...</a>
+          </div>
+        </div>
+        <div data-cardid="peeps" title="Private" class="card conversations">
+          <div class="subHeader hbox">
+            <div class="boxFlex">
+              <input id="search" type="text" placeholder="search people">
+            </div>
+            <button class="search">search</button>
+            <button class="button" data-href="#listUsersForAddPeep">add contact</button>
+          </div>
+          <div class="scroller" data-childclass="peepSummary">
+          </div>
+        </div>
+        <div data-cardid="notifications" title="Notifications" class="card">
+          <div class="scroller" data-childaddedyou="personLink">
+          </div>
+        </div>
+        <div data-cardid="listUsersForAddPeep" title="Add Peep" class="card">
+          <div class="scroller" data-childclass="addPeepLink">
+          </div>
+        </div>
+        <div data-cardid="user" class="card">
+          <div class="scroller">
+            <div class="peepInfo">
+              <img class="peepInfoPic" data-bind="pic" data-attr="src" src="i/face2.png">
+              <span data-bind="name" class="peepInfoName"></span>
+            </div>
+            <div class="peepConversations" data-childclass="convListItem">
+            </div>
+            <form data-class="compose"></form>
+            <span class="addToChatMessage hidden">This person needs to add you before you can chat with them.</span>
+            <form class="addPeepButtonForm hidden">
+              <input type="hidden" name="peepId" value="" data-bind="id" data-attr="value">
+              <button class="">Add</button>
+            </form>
+          </div>
+        </div>
+        <div data-cardid="conversation" title="Conversation" class="card">
+          <div class="scroller">
+            <div class="conversationMessages" data-childclass="message">
+            </div>
+            <form data-class="compose"></form>
+          </div>
+        </div>
+        <div data-cardid="compose" title="Compose" class="card">
+          <div class="scroller">
+            <form data-class="compose"></form>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div id="deviceProperties"></div>
+    <!-- Start standard UI elements -->
+    <div id="common" class="hidden">
 
-  <a id="sendSms" href="#">SMS</a>
+      <form data-classimpl="compose" class="compose">
+        <input type="hidden" name="from" value="">
+        <input type="hidden" name="to" value="">
+        <input type="hidden" name="convId" value="">
+        <input type="text" name="text">
+      </form>
 
-  <a id="chooseContact" href="#">Choose Contact</a>
+      <a href="#conversation?id=" data-classimpl="newConversation" class="newConversation">
+        <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"></span>
+        <span class="newConversationPeep" data-bind="from.name"></span>
+        <span class="newConversationTime"></span>
+        <span class="newConversationText" data-bind="text"></span>
+      </a>
 
-  <a id="takePicture" href="#">Take Picture</a>
 
-  <div id="imgPreview"></div>
+      <a class="private unread hbox" data-classimpl="peepSummary" href="#user">
+          <div>
+              <div class="avatar">
+                  <img src="i/face2.png" data-bind="pic" data-attr="src">
+              </div>
+          </div>
+          <div class="msgPreview boxFlex">
+              <div class="msgPreviewHeader hbox">
+                  <span class="author boxFlex overflow" data-bind="name"></span>
+                  <span class="new">(5)</span>
+                  <span class="boxFlexStrong"></span>
+                  <span class="time">5 min</span>
+              </div>
+              <div class="hbox">
+                  <span class="snippet boxFlex overflow">
+                      This is a snippet of text from the latest msg
+                  </span>
+              </div>
+          </div>
+      </a>
 
-  <p>Location fun.</p>
 
-  <pre id="error"></pre>
+      <a data-classimpl="personLink" class="item" href="#user">
+        <img class="peepInfoPic" src="i/face2.png" data-bind="pic" data-attr="src" align="absmiddle">
+        <span class="personName" data-bind="name"></span>
+      </a>
 
-  <div id="timestamp"></div>
+      <a data-classimpl="addPeepLink" data-nonav="nonav" class="item" href="#user?&id="></a>
 
-  <div id="map"></div>
+      <a data-classimpl="convListItem" class="item" href="#conversation?id="><span class="meta"></span></a>
 
-</body>
+      <div data-classimpl="message"  class="bubble">
+        <a href='#user?id=' class="sender">
+          <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"/></span>
+          <span class="name" data-bind="from.name"></span>
+        </a>
+        <div class="body">
+          <div class="meta">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- End standard UI elements -->
+
+<!--
+    <div id="deviceProperties"></div>
+
+    <a id="sendSms" href="#">SMS</a>
+
+    <a id="chooseContact" href="#">Choose Contact</a>
+
+    <a id="takePicture" href="#">Take Picture</a>
+
+    <div id="imgPreview"></div>
+
+    <p>Location fun.</p>
+
+    <pre id="error"></pre>
+
+    <div id="timestamp"></div>
+
+    <div id="map"></div>
+-->
+
+  </body>
 </html>

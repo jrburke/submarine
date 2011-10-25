@@ -7,7 +7,7 @@
 
 define(function (require) {
     //Dependencies with no usable return value.
-    require('env!env/phonegap');
+    require('env!env/phonegapAll');
 
     var env = (require('env'))(),
         isBrowser = typeof window !== "undefined" && window.document,
