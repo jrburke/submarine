@@ -56,7 +56,30 @@ define(function (require) {
   //The maps API is not AMD aware, get a handle from the global name
   maps = google.maps;
 
+  function updateDom(rootDom, model) {
+    // Update the data bound nodes.
+    rootDom.find('[data-bind]').each(function (i, node) {
+      var bindName = node.getAttribute('data-bind'),
+          attrName = node.getAttribute('data-attr'),
+          value = model[bindName],
+          parts;
 
+      // Allow for dot names in the bindName
+      if (bindName.indexOf('.') !== -1) {
+        parts = bindName.split('.');
+        value = model;
+        parts.forEach(function (part) {
+          value = value[part];
+        });
+      }
+
+      if (attrName) {
+        node.setAttribute(attrName, value);
+      } else {
+        $(node).text(value);
+      }
+    });
+  }
 
   // Set up card update actions.
   update = {
@@ -89,9 +112,9 @@ define(function (require) {
 
       //Pop Contacts so user choose a contact.
       navigator.contacts.chooseContact(function (id) {
-        alert('Chose ID: ' + id);
+        // Have a contact ID, find the full contact info.
         navigator.contacts.find(fields, function (contacts) {
-          var targetContact;
+          var targetContact, nums, mobileNum, model;
 
           contacts.some(function (contact) {
             if (contact.id === id) {
@@ -101,8 +124,39 @@ define(function (require) {
             return false;
           });
 
-          if (targetContact) {
-            alert('Got Contact: ' + JSON.stringify(targetContact, null, '  '));
+          if (targetContact && targetContact.phoneNumbers && targetContact.phoneNumbers.length) {
+            nums = targetContact.phoneNumbers;
+            nums.some(function (num) {
+              if (num.type === 'mobile') {
+                mobileNum = num;
+                return true;
+              } else {
+                return false;
+              }
+            });
+
+            if (!mobileNum) {
+              mobileNum = nums[0];
+            }
+
+            model = {
+              displayName: targetContact.displayName,
+              photo: targetContact.photos && targetContact.photos[0] &&
+                    targetContact.photos[0].value || null,
+              phoneNumber: mobileNum.value
+            };
+
+            // Update UI to show the person's selection.
+            updateDom($('[data-cardid="start"] .shareInfo'), model);
+
+            // Ask server for a URL for the SMS.
+            moda.getInviteUrl(model, function (url) {
+              // Generate SMS message.
+              navigator.sms.send(mobileNum.value, 'Find me with submarine: ' + url);
+            });
+          } else {
+            alert('Please choose a contact with a phone number that\n' +
+                  'can be used for SMS texts.');
           }
         }, function (err) {
           alert('Error: ' + err);

@@ -14,4 +14,13 @@ define(['./phonegap', './SMSComposer', './ContactView'], function () {
     };
   });
 
+  PhoneGap.addConstructor(function () {
+    if (!navigator.sms) {
+      navigator.sms = {};
+    }
+
+    navigator.sms.send = function (number, message) {
+      location = 'sms:' + number + '?body=' + encodeURIComponent(message);
+    }
+  });
 });

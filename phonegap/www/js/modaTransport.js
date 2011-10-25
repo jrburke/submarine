@@ -453,6 +453,8 @@ define(function (require, exports) {
     }, false);
   }
 
+  makePerCallPassThroughApi('getInviteUrl', ['details'], 'url');
+
   makePerCallPassThroughApi('peeps', ['query'], 'items');
   makePerCallPassThroughApi('users', ['query'], 'items');
   makePerCallPassThroughApi('user', ['id'], 'user');
