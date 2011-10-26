@@ -31,8 +31,8 @@ define(function (require) {
         pic;
 
     // First check if we have saved data for the assertion.
-    redis.get('browserid-assertion-' + assertionData.email, function (err, value) {
-      var id, name;
+    redis.get('browserid-assertion-hack-' + assertionData.email, function (err, value) {
+      var id, displayName;
 
       if (value && (value = value.toString())) {
         redis.hgetall(value, function (err, userData) {
@@ -44,22 +44,19 @@ define(function (require) {
       } else {
 
         id = assertionData.email;
-        name = assertionData.displayName;
+        displayName = assertionData.displayName;
         pic = 'http://www.gravatar.com/avatar/' +
               md5.hex_md5(id.trim().toLowerCase());
 
         // Store the user data for next request.
-        redis.set('browserid-assertion-' + assertionData.email, id);
-
-        //Add the user ID to the list of users.
-        redis.sadd('users', id);
+        redis.set('browserid-assertion-hack-' + assertionData.email, id);
 
         //Add the user to the store
-        redis.hmset(id, 'id', id, 'name', name, 'pic', pic);
+        redis.hmset(id, 'id', id, 'displayName', displayName, 'pic', pic);
 
         sendSignInComplete(data, client, {
           id: id,
-          name: name,
+          displayName: displayName,
           pic: pic
         });
       }

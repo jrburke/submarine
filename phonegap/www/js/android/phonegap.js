@@ -203,7 +203,7 @@ PhoneGap.addConstructor = function(func) {
         try {
             func();
         } catch(e) {
-            console.log("Failed to run constructor: " + e);
+            console.log("Failed to run constructor: " + e + ' function: ' + func.toString());
         }
     });
 };

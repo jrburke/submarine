@@ -64,6 +64,7 @@ define(function (require, exports) {
     delete localStorage.assertion;
     delete localStorage.assertionData;
     delete localStorage.me;
+    delete localStorage.invite;
     respond(null, 'signedOut');
   }
 
@@ -76,6 +77,12 @@ define(function (require, exports) {
       });
     } if (localStorage.assertionData) {
       transport.signInHack(JSON.parse(localStorage.assertionData), function (user) {
+        if (!user) {
+          triggerSignOut();
+        }
+      });
+    } else if (localStorage.invite) {
+      transport.signInInvite(localStorage.invite, function (user) {
         if (!user) {
           triggerSignOut();
         }
@@ -322,11 +329,9 @@ define(function (require, exports) {
   transport.me = function () {
     if (!me && !localMeCheck) {
       // Load user from storage
-      if (localStorage.assertion || localStorage.assertionData) {
-        me = localStorage.me;
-        if (me) {
-          me = JSON.parse(me);
-        }
+      me = localStorage.me;
+      if (me) {
+        me = JSON.parse(me);
       }
       localMeCheck = true;
     }
@@ -361,8 +366,18 @@ define(function (require, exports) {
 
     send({
       action: 'signInHack',
-      assertionData: data,
-      audience: location.host
+      assertionData: data
+    });
+
+    if (callback) {
+      meCallbacks.push(callback);
+    }
+  };
+
+  transport.signInInvite = function (invite, callback) {
+    send({
+      action: 'signInInvite',
+      invite: invite
     });
 
     if (callback) {
@@ -453,7 +468,7 @@ define(function (require, exports) {
     }, false);
   }
 
-  makePerCallPassThroughApi('getInviteUrl', ['details'], 'url');
+  makePerCallPassThroughApi('getInvite', ['details'], 'invite');
 
   makePerCallPassThroughApi('peeps', ['query'], 'items');
   makePerCallPassThroughApi('users', ['query'], 'items');

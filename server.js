@@ -22,7 +22,7 @@ requirejs(['require'], function (require) {
       io = require('socket.io'),
       querystring = require('querystring'),
 
-      staticServer = new nodeStatic.Server('./web'),
+      staticServer = new nodeStatic.Server('./phonegap/www'),
       clients = require('./server/clients'),
       server, listener;
 
@@ -71,9 +71,9 @@ requirejs(['require'], function (require) {
       }
     });
   });
-  server.listen(process.env.PORT || 8176);
+  server.listen(process.env.SUBMARINEPORT || process.env.PORT);
 
-  console.log('Listening on http://127.0.0.1:' + (process.env.PORT || 8176));
+  console.log('Listening on http://127.0.0.1:' + ((process.env.SUBMARINEPORT || process.env.PORT)));
 
   listener = io.listen(server, {
     transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']

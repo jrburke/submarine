@@ -662,8 +662,8 @@ moda.on({
     return transport('signInHack', data);
   };
 
-  moda.getInviteUrl = function (data, callback) {
-    transport('getInviteUrl', data, callback);
+  moda.getInvite = function (data, callback) {
+    transport('getInvite', data, callback);
   };
 
   moda.signOut = function (callback) {
