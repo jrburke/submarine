@@ -414,6 +414,7 @@ Conversation
     this.peeps = null;
     this.messages = null;
     this.on = {};
+    this.locations = {};
     this.messageDeferred = q.defer();
 
     convCache[id] = this;
@@ -453,6 +454,10 @@ Conversation
 
     sendMessage: function (message) {
       transport('sendMessage', message);
+    },
+
+    updateLocation: function (location) {
+      transport('updateLocation', location);
     },
 
     setSeen: function () {
@@ -566,6 +571,31 @@ moda.on({
       if (conv && conv.messages) {
         conv.messages.push(data);
       }
+
+
+    } else if (name === 'location') {
+      conv = convCache[data.convId];
+
+      // The from field should be a reference to the peepCache.
+      user = userCache[data.from];
+      if (!user) {
+        // Need to fetch the peep and bail out.
+        transport('user', data.from, function (userData) {
+          // temp is used to prevent jslint warning.
+          var temp = new User(userData);
+
+          //Re-trigger the event.
+          moda.trigger(name, data);
+        });
+
+        // Bail on this trigger, wait for peep response to re-trigger.
+        return;
+      }
+
+      data.from = user;
+      if (conv && conv.locations) {
+        conv.locations[data.from] = data;
+      }
     } else if (name === 'addedYou') {
       user = userCache[data.id];
       if (!user) {
@@ -654,6 +684,10 @@ moda.on({
     transport('startConversation', args);
   };
 
+  moda.getInvite = function (inviteId, callback) {
+    return transport('getInvite', inviteId, callback);
+  };
+
   moda.signIn = function (assertion) {
     return transport('signIn', assertion);
   };
@@ -662,8 +696,8 @@ moda.on({
     return transport('signInHack', data);
   };
 
-  moda.getInvite = function (data, callback) {
-    transport('getInvite', data, callback);
+  moda.createInvite = function (data, callback) {
+    transport('createInvite', data, callback);
   };
 
   moda.signOut = function (callback) {

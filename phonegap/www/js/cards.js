@@ -209,7 +209,11 @@ function ($,        url,         array,         headerTemplate) {
       }, false);
 
       // Set up initial state via simulation of a nav click
-      href = location.href.split('#')[1] || cards.startCardId;
+      href = location.href.split('#')[1];
+
+      if (!href || cards.excludeStart(href)) {
+        href = cards.startCardId;
+      }
 
       cards.nav(href, null, true);
 

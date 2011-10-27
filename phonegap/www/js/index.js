@@ -17,13 +17,13 @@ var remoteServerUrl = 'http://10.0.1.9:8176/';
   var hash = location.href.split('#')[1],
       parts;
   if (hash) {
-    //If an invite, hold on to it but still do redirect.
+    //If an invite, hold on to it, and do not do a redirect.
     parts = hash.split('=');
     if (parts.length > 1 && parts[0] === 'invite') {
       localStorage.invite = decodeURIComponent(parts[1]);
+    } else {
+      location.replace(location.pathname);
     }
-
-    location.replace(location.pathname);
   }
 }());
 
@@ -215,7 +215,7 @@ define(function (require) {
         message.convId = currentConvId;
       }
       if (!message.from) {
-        message.from = moda.me();
+        message.from = moda.me().id;
       }
 
       // Send the message
@@ -223,6 +223,25 @@ define(function (require) {
         by: 'id',
         filter: currentConvId
       }).sendMessage(message);
+    }
+  }
+
+  function sendLocationToCurrentConv(location) {
+
+    if (currentConvId) {
+      // Add any other fields needed.
+      if (!location.convId) {
+        location.convId = currentConvId;
+      }
+      if (!location.from) {
+        location.from = moda.me().id;
+      }
+
+      // Send the message
+      moda.conversation({
+        by: 'id',
+        filter: currentConvId
+      }).updateLocation(location);
     }
   }
 
@@ -274,12 +293,9 @@ define(function (require) {
     if (currentConvId) {
       setMap(lat, lon);
       updateMarker(lat, lon, timeTitle);
-      sendMessageToCurrentConv({
-        data: {
-          type: 'location',
-          lat: lat,
-          lon: lon
-        }
+      sendLocationToCurrentConv({
+        lat: lat,
+        lon: lon
       });
     }
   }
@@ -386,7 +402,21 @@ define(function (require) {
     },
 
     'inviteStart': function (data, dom) {
-      // First fetch the info for the chat....
+
+      // Fetch the convId
+      moda.getInvite(localStorage.invite, function (invite) {
+        // Show who invited the person.
+        updateDom(dom.find('.inviter'), invite.inviter);
+
+        // Update the link to start the conversation.
+        var linkNode = dom.find('.conversationLink')[0];
+        linkNode.href += invite.convId;
+
+        // Clean up localstorage
+        delete localStorage.invite;
+      });
+
+
       // Check the current location just so we get the user prompt over now.
       // Do not actually need the current position yet.
       navigator.geolocation.getCurrentPosition(function (position) {});
@@ -437,7 +467,7 @@ define(function (require) {
             updateDom($('[data-cardid="start"] .shareInfo'), model);
 
             // Ask server for a URL for the SMS.
-            moda.getInvite(model, function (invite) {
+            moda.createInvite(model, function (invite) {
               // Generate SMS message.
               var url = invite.server + '#invite=' + encodeURIComponent(invite.inviteId);
 
@@ -512,7 +542,6 @@ define(function (require) {
     }
   };
 
-
   // Listen to events from moda
   moda.on({
     'unknownUser': function () {
@@ -535,6 +564,24 @@ define(function (require) {
       // User signed out/no longer valid.
       // Clear out all the cards and go back to start
       location.reload();
+    },
+
+    'location': function (location) {
+      var card = cards.currentCard();
+
+      if (card.attr('data-cardid') === 'conversation' &&
+        card.attr('data-conversationid') === location.convId) {
+
+        console.log('Recieved location: ' + JSON.stringify(location, null, '  '));
+
+        if (location.from.id === moda.me().id) {
+
+        } else {
+
+        }
+
+        //adjustCardScroll(card);
+      }
     }
   });
 
@@ -547,6 +594,7 @@ define(function (require) {
   moda.init();
 
   init = function () {
+    var startIds;
 
     // If user is not logged in, then set the start card to signin.
     if (!moda.me()) {
@@ -560,6 +608,12 @@ define(function (require) {
       'shareLocation': true,
       'browserIdSignIn': true,
       'signOut': true
+    };
+
+    startIds = {
+      start: true,
+      signIn: true,
+      inviteStart: true
     };
 
     // Listen for nav items.
@@ -581,10 +635,15 @@ define(function (require) {
 
         cards.add(cardDom);
 
-        if (templateId !== 'start' && templateId !== 'signIn') {
+        if (!startIds[templateId]) {
           cards.forward();
         }
       }
+    };
+
+    // Exclude some URLs from being the start URL.
+    cards.excludeStart = function (fragId) {
+      return fragId.indexOf('invite=') === 0;
     };
 
     cards.onReady = function () {

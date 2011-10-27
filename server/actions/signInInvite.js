@@ -6,7 +6,7 @@ define(function (require) {
   var redis = require('../redis'),
       clientSend = require('../clientSend'),
       serverUrl = require('../serverUrl'),
-      getInvite = require('./getInvite');
+      createInvite = require('./createInvite');
 
   function signInInvite(data, client) {
 
@@ -14,7 +14,7 @@ define(function (require) {
         parts = invite.split('/'),
         urlId = parts[0],
         targetId = parts[1],
-        key = getInvite.prefix + urlId;
+        key = createInvite.prefix + urlId;
 
     redis.hmget(key, targetId, function (err, value) {
       if (value && (value = value.toString())) {

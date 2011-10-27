@@ -468,7 +468,7 @@ define(function (require, exports) {
     }, false);
   }
 
-  makePerCallPassThroughApi('getInvite', ['details'], 'invite');
+  makePerCallPassThroughApi('createInvite', ['details'], 'invite');
 
   makePerCallPassThroughApi('peeps', ['query'], 'items');
   makePerCallPassThroughApi('users', ['query'], 'items');
@@ -476,6 +476,7 @@ define(function (require, exports) {
   makePerCallPassThroughApi('addPeep', ['peepId'], 'peep');
   makePerCallPassThroughApi('chatPerms', [], 'ids');
 
+  makePerCallPassThroughApi('getInvite', ['inviteId'], 'invite');
   makePerCallPassThroughApi('loadConversation', ['convId'], 'details');
   makePerCallPassThroughApi('getPeepConversations', ['peepId'], 'conversations');
 
@@ -483,6 +484,7 @@ define(function (require, exports) {
 
   makeRequestOnlyApi('startConversation', ['args']);
   makeRequestOnlyApi('sendMessage', ['message']);
+  makeRequestOnlyApi('updateLocation', ['location']);
 
   makeRequestOnlyApi('messageSeen', ['convId', 'messageId']);
   makeRequestOnlyApi('markBulkSeen', ['ids']);

@@ -16,8 +16,7 @@ define(function (require) {
               .exec(function (err, items) {
                 clientSend(client, data, {
                   action: 'userResponse',
-                  user: items[0],
-                  _deferId: data._deferId
+                  user: items[0]
                 });
               });
   };

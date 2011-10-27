@@ -5,110 +5,41 @@
 define(function (require) {
   var redis = require('../redis'),
       clientSend = require('../clientSend'),
-      serverUrl = require('../serverUrl'),
-      prefix = 'inviteurl-';
+      createInvite = require('./createInvite');
 
-  function generateId() {
-    // TODO: Hack alert, using Math.random()
-    return (Math.random() + '').replace(/^0\./, '');
-  }
+  return function getInvite(data, client) {
 
-  function getUrlId(callback) {
-    var candidate = generateId();
+    var parts = data.inviteId.split('/'),
+        urlId = parts[0],
+        key = createInvite.prefix + urlId;
 
-    redis.get(prefix + candidate, function (err, value) {
-      if (value) {
-        // Ask again
-        getUrlId(callback);
-      } else {
-        callback(candidate);
-      }
-    });
-  }
+    redis.hgetall(key, function (err, invite) {
+      var prop, user, inviteData;
 
-  /**
-   * Create the right user records for a user who is known by phone number and
-   * not email address.
-   */
-  function makePhoneUser(user, callback) {
-    // First see if it already exists
-    // user.id will be the phone number.
-    redis.get('browserid-assertion-hack-' + user.id, function (err, value) {
-      if (value && (value = value.toString())) {
-        callback(user);
-      } else {
-        // Store the user data for next request.
-        redis.set('browserid-assertion-hack-' + user.id, user.id);
+      if (invite) {
+        // Reformat the stored version so easier to use on client and
+        // hide some implementation details/targetIds for other recipients.
+        inviteData = {
+          convId: invite.convId,
+          inviter: JSON.parse(invite.inviter),
+          invited: []
+        };
 
-        //Add the user to the store
-        redis.hmset(user.id, 'id', user.id, 'displayName', user.displayName, 'phoneNumber', user.phoneNumber);
-        if (user.pic) {
-          redis.hmset(user.id, 'pic', user.pic);
+        // Cycle through the invited people, and add them to the list.
+        for (prop in invite) {
+          if (invite.hasOwnProperty(prop) && !(prop in inviteData)) {
+            user = JSON.parse(invite[prop]);
+            inviteData.invited.push(user);
+          }
         }
+
+        clientSend(client, data, {
+          action: 'getInviteResponse',
+          invite: inviteData
+        });
+      } else {
+        console.error('getInvite: no invite for key: ' + key);
       }
     });
-  }
-
-
-  function getInvite(data, client) {
-
-    var user = data.details,
-        inviterId = client._deuxUserId,
-
-        // Generate an ID for the target.
-        targetId = generateId();
-
-    // Normalize details for user.
-    // Discard pic if it is a local URL.
-    if (user.pic && user.pic.indexOf('http') !== 0) {
-      delete user.pic;
-    }
-
-    getUrlId(function (urlId) {
-      var key = prefix + urlId,
-          from = inviterId,
-          to = user.id,
-          users = [from].concat(to),
-          text = '',
-          time = (new Date()).getTime(),
-          convId = from + '|' + to + '|' + time,
-          message, responseMessage, stringifiedMessage;
-
-      // Set info for the invite, who can use it.
-      redis.hmset(key, 'inviter', inviterId, targetId, JSON.stringify(user));
-
-      // Make sure there is a user account for the phone number.
-      makePhoneUser(user, function (toUser) {
-        // Set up the conversation to receive chat/location updates.
-
-        // Set up the message counter.
-        redis.set(convId + '-messageCounter', '0', function (err, response) {
-
-          users.forEach(function (user) {
-            // Add the user to the peep list for the conversation.
-            redis.sadd(convId + '-peeps', user);
-
-            // Update the set of conversations a user is involved in,
-            // but scope it per user
-            users.forEach(function (other) {
-              redis.sadd(user + '-' + other, convId);
-            });
-
-            clientSend(client, data, {
-              action: 'getInviteResponse',
-              invite: {
-                convId: convId,
-                server: serverUrl,
-                inviteId: urlId + '/' + targetId
-              }
-            });
-          });
-        });
-      });
-    });
-  }
-
-  getInvite.prefix = prefix;
-
-  return getInvite;
+  };
 });
