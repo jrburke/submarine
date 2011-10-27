@@ -36,7 +36,7 @@
 
 /*jslint indent: 2, strict: false, nomen: false, plusplus: false */
 /*global define: false, localStorage: false, window: false, location: false,
-  console: false, document: false */
+  console: false, document: false, remoteServerUrl: false */
 
 define(function (require, exports) {
   var env = { name: 'browser' },
@@ -75,7 +75,7 @@ define(function (require, exports) {
           triggerSignOut();
         }
       });
-    } if (localStorage.assertionData) {
+    } else if (localStorage.assertionData) {
       transport.signInHack(JSON.parse(localStorage.assertionData), function (user) {
         if (!user) {
           triggerSignOut();
@@ -159,9 +159,12 @@ define(function (require, exports) {
     // add a response handler
 
     actions[action + 'Response'] = function (data) {
-      var deferId = data._deferId;
-      waitingDeferreds[deferId].resolve(responseProp ? data[responseProp] : data);
-      delete waitingDeferreds[deferId];
+      var deferId = data._deferId,
+          deferreds = waitingDeferreds[deferId];
+      if (deferreds) {
+        deferreds.resolve(responseProp ? data[responseProp] : data);
+        delete waitingDeferreds[deferId];
+      }
     };
 
     // set up the public API method

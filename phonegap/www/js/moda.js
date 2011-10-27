@@ -572,7 +572,6 @@ moda.on({
         conv.messages.push(data);
       }
 
-
     } else if (name === 'location') {
       conv = convCache[data.convId];
 

@@ -488,8 +488,11 @@ define(function (require) {
               // Trigger the transition to the conversation.
               cards.nav('conversation?id=' + invite.convId);
 
-              // Trigger the SMS sending.
-              navigator.sms.send(mobileNum.value, 'Find me with submarine: ' + url);
+              // Trigger the SMS sending. Do it in a timeout so we can finish
+              // current execution loop.
+              setTimeout(function () {
+                navigator.sms.send(mobileNum.value, 'Find me with submarine: ' + url);
+              }, 30);
             });
           } else {
             alert('Please choose a contact with a phone number that\n' +
