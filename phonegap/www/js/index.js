@@ -54,7 +54,7 @@ define(function (require) {
       moda = require('moda'),
       cards = require('cards'),
       friendly = require('friendly'),
-      maps = require('http://maps.googleapis.com/maps/api/js?sensor=true&callback=define'),
+      maps = require('http://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry&callback=define'),
 
       browserId = navigator.id,
       timestampDom = $('#timestamp'),
@@ -70,10 +70,14 @@ define(function (require) {
       spread = 5,
 
       masterMap, masterMarker, watchId, update, init, nodelessActions, notifyDom,
-      currentConvId, messageCloneNode, newConversationNodeWidth, newMessageIScroll;
+      currentConvId, messageCloneNode, newConversationNodeWidth, newMessageIScroll,
+      myLatLon, LatLng, spherical;
 
-  //The maps API is not AMD aware, get a handle from the global name
+  // The maps API is not AMD aware, get a handle from the global name,
+  // and create some other aliases.
   maps = google.maps;
+  LatLng = google.maps.LatLng;
+  spherical = maps.geometry.spherical;
 
   function getChildCloneNode(node) {
     // Try on the actual node, and if not there, check the scroller node
@@ -102,7 +106,9 @@ define(function (require) {
       }
 
       if (attrName) {
-        node.setAttribute(attrName, value);
+        if (value !== undefined && value !== null) {
+          node.setAttribute(attrName, value);
+        }
       } else {
         $(node).text(value);
       }
@@ -293,10 +299,13 @@ define(function (require) {
     if (currentConvId) {
       setMap(lat, lon);
       updateMarker(lat, lon, timeTitle);
-      sendLocationToCurrentConv({
+
+      myLatLon = {
         lat: lat,
         lon: lon
-      });
+      };
+
+      sendLocationToCurrentConv(myLatLon);
     }
   }
 
@@ -566,8 +575,31 @@ define(function (require) {
       location.reload();
     },
 
-    'location': function (location) {
+    'message': function (message) {
       var card = cards.currentCard();
+
+      if (card.attr('data-cardid') === 'conversation' &&
+        card.attr('data-conversationid') === message.convId) {
+        // Update the current conversation.
+        card.find('.conversationMessages').append(makeMessageBubble(messageCloneNode.cloneNode(true), message));
+        cards.adjustCardSizes();
+
+        adjustCardScroll(card);
+
+        // Let the server know the messages have been seen
+        moda.conversation({
+          by: 'id',
+          filter: message.convId
+        }).withMessages(function (conv) {
+          conv.setSeen();
+        });
+      }
+      // console.log("GOT A MESSAGE: ", message);
+    },
+
+    'location': function (location) {
+      var card = cards.currentCard(),
+          ll1, ll2, dist;
 
       if (card.attr('data-cardid') === 'conversation' &&
         card.attr('data-conversationid') === location.convId) {
@@ -577,7 +609,15 @@ define(function (require) {
         if (location.from.id === moda.me().id) {
 
         } else {
+          // Compute the distance between the two points.
+          if (myLatLon) {
+            ll1 = new LatLng(myLatLon.lat, myLatLon.lon);
+            ll2 = new LatLng(location.lat, location.lon);
+            // Divide by 1000 to get kilometers.
+            dist = maps.geometry.spherical.computeDistanceBetween(ll1, ll2) / 1000;
 
+            card.find('.location .dist').text(dist);
+          }
         }
 
         //adjustCardScroll(card);
@@ -589,6 +629,14 @@ define(function (require) {
   $('#common').children().each(function (i, node) {
     commonNodes[node.getAttribute('data-classimpl')] = node;
     node.parentNode.removeChild(node);
+  });
+
+  // Now insert commonly used nodes in any declarative cases.
+  $('[data-class]').each(function (i, origNode) {
+    var classImpl = origNode.getAttribute('data-class'),
+        node = commonNodes[classImpl].cloneNode(true);
+
+    origNode.parentNode.replaceChild(node, origNode);
   });
 
   moda.init();
@@ -663,7 +711,26 @@ define(function (require) {
           displayName: formNode.displayName.value,
           email: formNode.email.value
         });
+      })
+      // Handle compose inside a conversation
+      .delegate('[data-cardid="conversation"] .compose', 'submit', function (evt) {
+        evt.preventDefault();
+
+        var form = evt.target,
+            data = formToObject(form);
+
+        // Reset the form
+        form.text.value = '';
+        form.text.focus();
+
+        // Send the message
+        moda.conversation({
+          by: 'id',
+          filter: data.convId
+        }).sendMessage(data);
+
       });
+
 
     // Initialize the cards
     cards($('#cardContainer'));
