@@ -426,9 +426,8 @@ define(function (require) {
       });
 
 
-      // Check the current location just so we get the user prompt over now.
-      // Do not actually need the current position yet.
-      navigator.geolocation.getCurrentPosition(function (position) {});
+      // Start tracking location. User can refuse if they prefer.
+      trackPosition();
 
     },
 
@@ -522,6 +521,9 @@ define(function (require) {
 
       // Wait for messages before showing the messages.
       conversation.withMessages(function (conv) {
+
+        currentConvId = conv.id;
+
         // Clear out old messages
         messagesNode.innerHTML = '';
 

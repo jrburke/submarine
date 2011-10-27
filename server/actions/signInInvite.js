@@ -4,8 +4,8 @@
 
 define(function (require) {
   var redis = require('../redis'),
+      clients = require('../clients'),
       clientSend = require('../clientSend'),
-      serverUrl = require('../serverUrl'),
       createInvite = require('./createInvite');
 
   function signInInvite(data, client) {
@@ -18,7 +18,17 @@ define(function (require) {
 
     redis.hmget(key, targetId, function (err, value) {
       if (value && (value = value.toString())) {
-        var user = JSON.parse(value);
+        var user = JSON.parse(value),
+            id = user && user.id,
+            clientList;
+
+        // Tie the user ID to the client connection.
+        if (id) {
+          clientList = clients[id] || (clients[id] = []);
+          client._deuxUserId = id;
+
+          clientList.push(client);
+        }
 
         clientSend(client, data, {
           action: 'signInComplete',

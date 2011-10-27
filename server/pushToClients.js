@@ -6,6 +6,8 @@ define(function (require) {
   var clients = require('./clients');
 
   return function pushToClients(targetId, message) {
+
+
     var list = clients[targetId];
     if (list) {
       list.forEach(function (client) {

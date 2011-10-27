@@ -243,6 +243,10 @@ define(function (require, exports) {
       respond(null, 'signedIn', me);
     },
 
+    'location': function (data) {
+      respond(null, 'location', data.location);
+    },
+
     'message': function (data) {
       respond(null, 'message', data.message);
     },

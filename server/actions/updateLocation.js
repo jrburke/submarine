@@ -9,7 +9,7 @@ define(function (require) {
   return function updateLocation(data, client) {
     var locData = data.location,
         convId = locData.convId,
-        location, response;
+        location, responseMessage;
 
     location = {
       convId: convId,
@@ -19,6 +19,11 @@ define(function (require) {
       time: (new Date()).getTime()
     };
 
+    responseMessage = JSON.stringify({
+      action: 'location',
+      location: location
+    });
+
     // Update the location of the user in this conversation.
     redis.set(convId + '-location-' + locData.from, JSON.stringify(location));
 
@@ -27,7 +32,7 @@ define(function (require) {
       users = redisUtils.multiBulkToStringArray(users);
       users.forEach(function (user) {
         // Push the message to any user clients
-        pushToClients(user, response);
+        pushToClients(user, responseMessage);
       });
     });
   };
