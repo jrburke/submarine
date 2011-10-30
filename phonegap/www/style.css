@@ -455,6 +455,9 @@ input[type=text]#search {
 }
 
 data-cardid="conversation"] .scroller {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     margin-bottom: 24px;
 }
 

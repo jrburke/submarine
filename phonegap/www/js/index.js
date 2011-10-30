@@ -371,14 +371,9 @@ define(function (require) {
       // If the message contents are longer than the containing element,
       // scroll down.
       if (card.innerHeight() < card.find('.scroller').innerHeight()) {
-        var scroller = cards.getIScroller(card);
-        if (scroller) {
-          scroller.scrollToElement(card.find('.compose')[0], 200);
-        } else {
-          card[0].scrollTop = card[0].scrollHeight;
-        }
+        card[0].scrollTop = card[0].scrollHeight;
       }
-    }, 300);
+    }, 100);
   }
 
   // Set up card update actions.
@@ -608,8 +603,6 @@ define(function (require) {
 
       if (card.attr('data-cardid') === 'conversation' &&
         card.attr('data-conversationid') === location.convId) {
-
-        console.log('Recieved location: ' + JSON.stringify(location, null, '  '));
 
         if (location.from.id === moda.me().id) {
 
