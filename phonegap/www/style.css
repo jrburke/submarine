@@ -52,15 +52,6 @@ textarea {
     font-family: "Helvetica", arial, sans-serif;
 }
 
-button {
-    cursor: pointer;
-}
-
-button::-moz-focus-inner {
-    padding: 0;
-    border: 0
-}
-
 ::-webkit-input-placeholder {
     color: #ccc;
 }
@@ -270,42 +261,6 @@ a {
     vertical-align: middle;
 }
 
-.subHeader button,
-#compose button {
-    background-color: #EEEEEE;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #708BB5 #708BB5 #516B95;
-    color: #FFFFFF;
-    font-size: 11px;
-    font-weight: bold;
-    height: 24px;
-    padding: 0 10px;
-    text-shadow: 0 -1px 0 #516B95;
-    margin: 0 0 0 5px;
-
-    -webkit-border-radius: 3px;
-       -moz-border-radius: 3px;
-         -o-border-radius: 3px;
-            border-radius: 3px;
-
-    background-image: -webkit-gradient(
-                            linear,
-                            left top,
-                            left bottom,
-                            color-stop(0%, #A7BDE0),
-                            color-stop(50%, #8199BF),
-                            color-stop(50%, #708BB5),
-                            color-stop(100%, #516B95)
-                      );
-
-    background-image: -moz-linear-gradient(center top ,
-                                           #A7BDE0 0%,
-                                           #8199BF 50%,
-                                           #708BB5 50%,
-                                           #516B95 100%);
-}
-
 .subHeader button.search {
     border-radius: 0 3px 3px 0;
     margin: 0;
@@ -340,6 +295,21 @@ input[type=text]#search {
 
     border-width: 1px 0 1px 1px;
 }
+
+
+[data-cardid="start"] {
+  padding: 20px;
+  text-align: center;
+}
+
+  [data-cardid="start"] h1 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  [data-cardid="start"] .shareInfo {
+    margin: 20px 0;
+  }
 
 .conversations,
 .conversation {
@@ -532,21 +502,64 @@ input[type=text]#search {
     text-shadow: 0 -1px 0 #000;
 }
 
-#alert button,
-.settings button {
-    width: 100%;
-    margin: 0 0 9px 0;
-    height: 36px;
-    font-size: 14px;
+button {
+    background-color: #EEEEEE;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #708BB5 #708BB5 #516B95;
+    color: #FFFFFF;
+    font-size: 11px;
     font-weight: bold;
-    color: #444;
-    text-shadow: 1px 1px 0 #fff;
-    border: none;
+    height: 36px;
+    padding: 0 10px;
+    text-shadow: 0 -1px 0 #516B95;
+    cursor: pointer;
 
     -webkit-border-radius: 5px;
        -moz-border-radius: 5px;
          -o-border-radius: 5px;
             border-radius: 5px;
+
+    background-image: -webkit-gradient(
+                            linear,
+                            left top,
+                            left bottom,
+                            color-stop(0%, #A7BDE0),
+                            color-stop(50%, #8199BF),
+                            color-stop(50%, #708BB5),
+                            color-stop(100%, #516B95)
+                      );
+
+    background-image: -moz-linear-gradient(center top ,
+                                           #A7BDE0 0%,
+                                           #8199BF 50%,
+                                           #708BB5 50%,
+                                           #516B95 100%);
+}
+
+button::-moz-focus-inner {
+    padding: 0;
+    border: 0
+}
+
+button.wide {
+    width: 100%;
+}
+
+button.small {
+    font-size: 11px;
+    height: 24px;
+
+    -webkit-border-radius: 3px;
+       -moz-border-radius: 3px;
+         -o-border-radius: 3px;
+            border-radius: 3px;
+
+}
+
+button.gray {
+    color: #444;
+    text-shadow: 1px 1px 0 #fff;
 
     background-image: -webkit-gradient(
                             linear,
@@ -565,8 +578,7 @@ input[type=text]#search {
                                            #ccc 100%);
 }
 
-#alert button.red,
-.settings button.red {
+button.red {
     color: #FFFFFF;
     text-shadow: 0 -1px 0 #B13D3D;
 
@@ -587,8 +599,7 @@ input[type=text]#search {
                                            #C84343 100%);
 }
 
-#alert button.green,
-.settings button.green {
+button.green {
     color: #FFFFFF;
     text-shadow: 0 -1px 0 #478248;
 

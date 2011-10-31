@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" type="text/css" media="screen">
   <script data-main="js/index" src="js/require.js"></script>
 </head>
-  <body>
+  <body class="invisible">
     <div id="cards">
       <div data-cardid="signIn" title="Sign In" class="card noiscroll">
         <!-- a class="homeNav browserSignIn" data-nonav="nonav" href="#browserSignIn">Sign In With BrowserID</a -->
@@ -18,12 +18,17 @@
         </form>
       </div>
       <div data-cardid="start" title="submarine" class="card noiscroll">
-        <a class="homeNav" href="#shareLocation">Share Location With...</a>
-        <div class="shareInfo">
+        <h1>Submarine: Locate your friends</h1>
+        <button class="wide shareLocation" data-href="#shareLocation">Share Location With...</button>
+        <div class="shareInfo hidden">
+          <h2>You chose:</h2>
           <div class="photo" data-bind="photo"></div>
           <div class="displayName" data-bind="displayName"></div>
           <div class="phoneNumber" data-bind="phoneNumber"></div>
+          <p>Send and SMS to this person, then come back to Submarine to
+          locate this person and chat with them.</p>
         </div>
+        <button class="smsButton wide red hidden">Send SMS</button>
       </div>
       <div data-cardid="inviteStart" title="submarine invite" class="card noiscroll">
         <div class="inviter">

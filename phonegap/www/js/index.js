@@ -67,7 +67,7 @@ define(function (require) {
       spread = 5,
 
       masterMap, masterMarker, watchId, update, init, nodelessActions, notifyDom,
-      currentConvId, messageCloneNode,
+      currentConvId, messageCloneNode, smsContact,
       myLatLon, LatLng, spherical;
 
   // The maps API is not AMD aware, get a handle from the global name,
@@ -373,7 +373,7 @@ define(function (require) {
       navigator.contacts.chooseContact(function (id) {
         // Have a contact ID, find the full contact info.
         navigator.contacts.find(fields, function (contacts) {
-          var targetContact, nums, mobileNum, model;
+          var targetContact, nums, mobileNum, shareInfoDom;
 
           contacts.some(function (contact) {
             if (contact.id === id) {
@@ -398,7 +398,7 @@ define(function (require) {
               mobileNum = nums[0];
             }
 
-            model = {
+            smsContact = {
               id: mobileNum.value,
               displayName: targetContact.displayName,
               pic: targetContact.photos && targetContact.photos[0] &&
@@ -407,28 +407,9 @@ define(function (require) {
             };
 
             // Update UI to show the person's selection.
-            updateDom($('[data-cardid="start"] .shareInfo'), model);
-
-            // Ask server for a URL for the SMS.
-            moda.createInvite(model, function (invite) {
-              // Generate SMS message.
-              var url = invite.server + '#invite=' + encodeURIComponent(invite.inviteId);
-
-              // Set the current convId to be used to send notifications.
-              currentConvId = invite.convId;
-
-              // Start tracking the position.
-              trackPosition();
-
-              // Trigger the transition to the conversation.
-              cards.nav('conversation?id=' + invite.convId);
-
-              // Trigger the SMS sending. Do it in a timeout so we can finish
-              // current execution loop.
-              setTimeout(function () {
-                navigator.sms.send(mobileNum.value, 'Find me with submarine: ' + url);
-              }, 30);
-            });
+            shareInfoDom = $('[data-cardid="start"] .shareInfo').removeClass('hidden');
+            updateDom(shareInfoDom, smsContact);
+            $('[data-cardid="start"] .smsButton').removeClass('hidden');
           } else {
             alert('Please choose a contact with a phone number that\n' +
                   'can be used for SMS texts.');
@@ -648,6 +629,32 @@ define(function (require) {
           email: formNode.email.value
         });
       })
+      // Handle clicking on the SMS button.
+      .delegate('.smsButton', 'click', function (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        // Ask server for a URL for the SMS.
+        moda.createInvite(smsContact, function (invite) {
+          // Generate SMS message.
+          var url = invite.server + '#invite=' + encodeURIComponent(invite.inviteId);
+
+          // Set the current convId to be used to send notifications.
+          currentConvId = invite.convId;
+
+          // Start tracking the position.
+          trackPosition();
+
+          // Trigger the transition to the conversation.
+          cards.nav('conversation?id=' + invite.convId);
+
+          // Trigger the SMS sending. Do it in a timeout so we can finish
+          // current execution loop.
+          setTimeout(function () {
+            navigator.sms.send(smsContact.phoneNumber, 'Find me with submarine: ' + url);
+          }, 30);
+        });
+      })
       // Handle compose inside a conversation
       .delegate('.cardFooter .compose', 'submit', function (evt) {
         evt.preventDefault();
@@ -669,6 +676,9 @@ define(function (require) {
 
     // Initialize the cards
     cards();
+
+    // Now that cards are initialized, can show the body.
+    body.removeClass('invisible');
 
     // Periodically update the timestamps shown in the page, every minute.
     setInterval(function () {
