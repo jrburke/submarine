@@ -26,49 +26,24 @@
   location: false, history: false, setTimeout: false */
 'use strict';
 
-define([ 'jquery', 'blade/url', 'blade/array', 'text!./cardsHeader.html'],
-function ($,        url,         array,         headerTemplate) {
-  var cards, header, display, back, nlCards,
+define(function (require) {
+  var $ = require('jquery'),
+      url = require('blade/url'),
+      array = require('blade/array'),
+      headerTemplate = require('text!./cardsHeader.html'),
+      cssText = require('text!./cardsStyle.css'),
       cardPosition = 0,
-      headerText = '',
-      cardTitles = [],
-      scrollCounter = 0,
-      scrollRegistry = {};
-      //iScroll just defines a global, bind to it here
-      //IScroll = window.iScroll;
+      cardList = [],
+      footerList = [],
+      cards, back, headerDom, bodyDom, footerDom, headerTextDom, docBodyDom,
+      bodyWidth;
 
-  function adjustCardSizes() {
-    var cardWidth = display.outerWidth(),
-      cardList = $('.card'),
-      totalWidth = cardWidth * cardList.length,
-      height = window.innerHeight - header.outerHeight();
-
-    //Set height
-    display.css('height', height + 'px');
-
-    //Set widths and heights of cards. Need to set the heights
-    //explicitly so any card using iscroll will get updated correctly.
-    nlCards.css({
-      width: totalWidth + 'px',
-      height: height + 'px'
-    });
-
-    cardList.css({
-      width: cardWidth + 'px',
-      height: height + 'px'
-    });
-
-    //Reset the scroll correctly.
-    cards.scroll();
-
-    //Update the scrollers.
-    nlCards.find('[data-scrollid]').each(function (i, node) {
-      var scrollId = node.getAttribute('data-scrollid'),
-          scroller = scrollRegistry[scrollId];
-      if (scroller) {
-        scroller.refresh();
-      }
-    });
+  function trimCardList() {
+    // Remove any cards that are past the current position.
+    if (cardPosition < cardList.length - 1) {
+      cardList.splice(cardPosition + 1, cardList.length - cardPosition - 1);
+      footerList.splice(cardPosition + 1, footerList.length - cardPosition - 1);
+    }
   }
 
   function parseUrl(node) {
@@ -118,17 +93,54 @@ function ($,        url,         array,         headerTemplate) {
     }
   }
 
-  cards = function (nl, options) {
-    nl = nl.jquery ? nl : $(nl);
+  function adjustSizes() {
+    bodyWidth = docBodyDom.outerWidth();
+  }
 
+  function updateHeaderFooter() {
+    var currentFooterDom = footerList[cardPosition],
+      topHeight, bottomHeight;
+
+    cards.setTitle();
+
+    // Hide/Show back button as appropriate
+    back.css('visibility', !cardPosition ? 'hidden' : '');
+
+    footerDom.empty();
+    if (currentFooterDom) {
+      footerDom.append(currentFooterDom);
+    }
+
+    // Measure height of header and footer and adjust margins on
+    // card body appropriately.
+    topHeight = headerDom.outerHeight();
+    bottomHeight = footerDom.outerHeight();
+
+    bodyDom.css({
+      marginTop: topHeight + 'px',
+      marginBottom: bottomHeight + 'px'
+    });
+  }
+
+  cards = function (options) {
     cards.options = options || {};
 
     $(function () {
-      var cardNodes, href;
+      var styleNode = document.createElement('style'),
+          cardNodes, href;
+
+      bodyDom = $('#cards');
+      docBodyDom = $('body');
+      bodyWidth = docBodyDom.outerWidth();
+
+      // Insert style used for card
+      styleNode.type = 'text/css';
+      styleNode.textContent = cssText;
+      $('head').append(styleNode);
 
       // insert the header before the cards
-      header = $(headerTemplate).insertBefore(nl);
-      headerText = $('#headerText');
+      headerDom = $(headerTemplate).insertBefore(bodyDom);
+      headerTextDom = $('#headerText');
 
       back = $('#back');
       back.css('visibility', 'hidden');
@@ -136,14 +148,11 @@ function ($,        url,         array,         headerTemplate) {
         history.back();
       });
 
-      display = nl;
-      nlCards = display.find('#cards');
-
-      adjustCardSizes();
-      cards.setTitle(options && options.title);
+      // Append a node to use for the footer.
+      footerDom = $('<div id="cardsFooter" style="position: fixed; bottom: 0; left: 0; width: 100%;"></div>').insertAfter(bodyDom);
 
       // grab the cards for use later
-      cardNodes = array.to(nl.find('[data-cardid]'));
+      cardNodes = array.to(bodyDom.find('[data-cardid]'));
 
       // store the cards by data-cardid value, and take them out of
       // the DOM and only add them as needed
@@ -161,9 +170,9 @@ function ($,        url,         array,         headerTemplate) {
       // detect orientation changes and size the card container
       // size accordingly
       if ('onorientationchange' in window) {
-        window.addEventListener('orientationchange', adjustCardSizes, false);
+        window.addEventListener('orientationchange', adjustSizes, false);
       }
-      window.addEventListener('resize', adjustCardSizes, false);
+      window.addEventListener('resize', adjustSizes, false);
 
       // Listen for clicks. Using clicks instead of hashchange since
       // pushState API does not trigger hashchange events.
@@ -175,16 +184,19 @@ function ($,        url,         array,         headerTemplate) {
       window.addEventListener('popstate', function (evt) {
 
         var nav = parseUrl(),
-            cardsDom = cards.allCards(),
-            cardId = nav.cardId || cardsDom[0].getAttribute('data-cardid'),
-            i, index, cardNode;
+            cardId = nav.cardId || cardList[0].attr('data-cardid'),
+            i, index, cardDom;
 
         // find the card in the history that matches the current URL
-        for (i = cardsDom.length - 1; i > -1 && (cardNode = cardsDom[i]); i--) {
-          if (cardNode.getAttribute('data-cardid') === cardId) {
+        for (i = cardList.length - 1; i > -1 && (cardDom = cardList[i]); i--) {
+          if (cardDom.attr('data-cardid') === cardId) {
             index = i;
             break;
           }
+        }
+
+        if (!index) {
+          index = cardPosition - 1;
         }
 
         cards.moveTo(index);
@@ -194,17 +206,7 @@ function ($,        url,         array,         headerTemplate) {
         // example, if that now works in everywhere we want, and we are
         // using CSS3 transitions.
         setTimeout(function () {
-          var removed = cardsDom.slice(index + 1).remove();
-
-          // Remove scrollers.
-          removed.each(function (i, node) {
-            var scrollId = node.getAttribute('data-scrollid'),
-                scroller = scrollRegistry[scrollId];
-            if (scroller) {
-              scroller.destroy();
-              delete scrollRegistry[scrollId];
-            }
-          });
+          trimCardList();
         }, 300);
       }, false);
 
@@ -235,7 +237,7 @@ function ($,        url,         array,         headerTemplate) {
 
   cards.templates = {};
 
-  cards.adjustCardSizes = adjustCardSizes;
+  cards.adjustSizes = adjustSizes;
 
   // Triggered when the cards are ready after initialization. Override
   // in app logic.
@@ -250,28 +252,34 @@ function ($,        url,         array,         headerTemplate) {
   };
 
   /**
-   * Adds a card node to the list.
+   * Adds a card node to the list, but does not show it. Call forward() or
+   * show() to do that.
    */
   cards.add = function (nodeOrDom) {
-    var scrollId = 'id' + (scrollCounter++),
-      dom = $(nodeOrDom);
+    var dom = $(nodeOrDom),
+        currentFooterDom = dom.find('.cardFooter'),
+        footerPosition = cardList.push(dom) - 1;
 
-    nlCards.append(nodeOrDom);
-    adjustCardSizes();
-
-    // Set up scroller.
-    if (!dom.hasClass('noiscroll')) {
-      //scrollRegistry[scrollId] = new IScroll(dom[0]);
-      //dom.attr('data-scrollid', scrollId);
+    if (currentFooterDom.length) {
+      currentFooterDom[0].parentNode.removeChild(currentFooterDom[0]);
+      footerList[footerPosition] = $(currentFooterDom[0]);
+    } else {
+      footerList[footerPosition] = null;
     }
   };
 
-/*
-  cards.getIScroller = function (nodeOrDom) {
-    var dom = $(nodeOrDom);
-    return scrollRegistry[dom.attr('data-scrollid')];
+  /**
+   * Call when the first card should be displayed.
+   * Assumes cards.add() was previously called to add a real card to show.
+   */
+  cards.show = function () {
+    if (cardPosition) {
+      throw new Error('cards.show called when there is more than one card to show.');
+    }
+
+    bodyDom.append(cardList[0]);
+    updateHeaderFooter();
   };
-*/
 
   cards.back = function () {
     cardPosition -= 1;
@@ -279,77 +287,84 @@ function ($,        url,         array,         headerTemplate) {
       cardPosition = 0;
     }
 
-    //Restore showing text inputs on old current card (see forward)
-    nlCards.find('.card').eq(cardPosition).find('.inputHidden').removeClass('inputHidden');
-
-    cards.scroll();
+    cards.scroll(cardPosition + 1);
   };
 
-  cards.moveTo = function (position) {
-    cardPosition = position;
+  cards.moveTo = function (index) {
+    var oldPosition = cardPosition;
+    cardPosition = index;
     if (cardPosition < 0) {
       cardPosition = 0;
     }
-
-    //Restore showing text inputs on old current card (see forward)
-    nlCards.find('.card').eq(cardPosition).find('.inputHidden').removeClass('inputHidden');
-
-    cards.scroll();
+    cards.scroll(oldPosition);
   };
 
   cards.forward = function (title) {
-    //Hide text inputs on old current card, so that mobile firefox
-    //does not put the up/down arrow UI on the screen to jump to them.
-    nlCards.find('.card').eq(cardPosition).find('input, textarea').addClass('inputHidden');
     cardPosition += 1;
-    cards.scroll(title);
+    cards.scroll(cardPosition - 1);
   };
 
-  cards.scroll = function (title) {
-    if (title) {
-      cardTitles[cardPosition] = title;
+  cards.scroll = function (oldPosition) {
+    // Do not bother to scroll if positions are the same.
+    if (oldPosition === cardPosition) {
+      return;
     }
 
-    cards.setTitle(title);
+    var isForward = oldPosition < cardPosition,
+        direction = isForward ? 1 : -1,
+        newDom = cardList[cardPosition],
+        newNode = newDom[0],
+        currentDom = cardList[oldPosition],
+        currentNode = currentDom[0];
 
-    var left = display.outerWidth() * cardPosition;
+    newNode.style.position = 'absolute';
+    newNode.style.left = (direction * bodyWidth) + 'px';
+    newDom.addClass('cardsLeftAnimate');
+    bodyDom[isForward ? 'append' : 'prepend'](newNode);
 
-/*
-    // Non-css transition route.
-    nlCards.animate(
-      {
-        left: '-' + left + 'px'
-      }, {
-        duration: 300,
-        easing: 'linear'
-      }
-    );
-*/
+    // Need the DOM to update to the reality of a new DOM node with an
+    // animation on it. Without this setTimeout, the newNode does not animate.
+    setTimeout(function () {
+      //Set up current card for movement.
+      currentDom.addClass('transition');
+      currentNode.style.left = 0;
+      currentNode.style.position = 'absolute';
+      currentDom.addClass('cardsLeftAnimate');
 
-    // Relies on CSS transitions for animation.
-    nlCards.css({
-      left: '-' + left + 'px'
-    });
+      //Now move the cards.
+      currentNode.style.left = (-1 * direction * bodyWidth) + 'px';
+      newNode.style.left = 0;
 
-    //Hide/Show back button as appropriate
-    back.css('visibility', !cardPosition ? 'hidden' : '');
+      //Set timeout at end of animation to remove the styles.
+      //TODO: disable further scroll actions until this completes, or
+      //maybe queue them.
+      setTimeout(function () {
+        currentNode.style.left = '';
+        currentNode.style.position = '';
+        currentDom.removeClass('cardsLeftAnimate');
+
+        newNode.style.left = '';
+        newNode.style.position = '';
+        newDom.removeClass('cardsLeftAnimate');
+
+        currentNode.parentNode.removeChild(currentNode);
+      }, 250);
+    }, 10);
+
+    updateHeaderFooter();
   };
 
   cards.currentCard = function () {
-    return nlCards.find('.card').last();
-  };
-
-  cards.allCards = function () {
-    return nlCards.find('.card');
+    return cardList[cardPosition];
   };
 
   cards.getTitle = function () {
-    return nlCards.find('.card').last().attr('title') || '';
+    return cardList[cardPosition].attr('title') || '';
   };
 
   cards.setTitle = function (title) {
-    title = title || cardTitles[cardPosition] || nlCards.find('.card').eq(cardPosition).attr('title') || '';
-    headerText.html(title);
+    title = title || cardList[cardPosition].attr('title') || '';
+    headerTextDom.html(title);
   };
 
   return cards;

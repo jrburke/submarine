@@ -1,0 +1,14 @@
+.cardsLeftAnimate {
+  transition-property: left;
+  transition-duration: 200ms;
+  transition-timing-function: linear;
+  -moz-transition-property: left;
+  -moz-transition-duration: 200ms;
+  -moz-transition-timing-function: linear;
+  -webkit-transition-property: left;
+  -webkit-transition-duration: 200ms;
+  -webkit-transition-timing-function: linear;
+  -o-transition-property: left;
+  -o-transition-duration: 200ms;
+  -otransition-timing-function: linear;
+}

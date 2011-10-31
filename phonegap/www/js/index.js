@@ -54,7 +54,7 @@ define(function (require) {
       moda = require('moda'),
       cards = require('cards'),
       friendly = require('friendly'),
-      maps = require('http://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry&callback=define'),
+      maps = require('async!http://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry'),
 
       browserId = navigator.id,
       timestampDom = $('#timestamp'),
@@ -188,8 +188,6 @@ define(function (require) {
 
       // Figure out how big to make the horizontal scrolling area.
       adjustNewScrollerWidth(convScrollerDom);
-
-      cards.adjustCardSizes();
 
       if (newMessageIScroll) {
         newMessageIScroll.refresh();
@@ -531,9 +529,6 @@ define(function (require) {
 
         messagesNode.appendChild(frag);
 
-        // Refresh the card sizes
-        cards.adjustCardSizes();
-
         // Let the server know the messages have been seen
         conversation.setSeen();
 
@@ -582,7 +577,6 @@ define(function (require) {
         card.attr('data-conversationid') === message.convId) {
         // Update the current conversation.
         card.find('.conversationMessages').append(makeMessageBubble(messageCloneNode.cloneNode(true), message));
-        cards.adjustCardSizes();
 
         adjustCardScroll(card);
 
@@ -683,6 +677,8 @@ define(function (require) {
 
         if (!startIds[templateId]) {
           cards.forward();
+        } else {
+          cards.show();
         }
       }
     };
@@ -711,7 +707,7 @@ define(function (require) {
         });
       })
       // Handle compose inside a conversation
-      .delegate('[data-cardid="conversation"] .compose', 'submit', function (evt) {
+      .delegate('.cardFooter .compose', 'submit', function (evt) {
         evt.preventDefault();
 
         var form = evt.target,
@@ -729,9 +725,8 @@ define(function (require) {
 
       });
 
-
     // Initialize the cards
-    cards($('#cardContainer'));
+    cards();
 
     // Periodically update the timestamps shown in the page, every minute.
     setInterval(function () {
