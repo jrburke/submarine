@@ -24,7 +24,8 @@ body {
     color: #222;
     font-size: 14px;
     line-height: 18px;
-    overflow: hidden;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .hidden,
@@ -200,9 +201,6 @@ a {
        http://www.html5rocks.com/en/tutorials/speed/quick/#toc-hwaccel
        May need to remove */
     -webkit-transform: translateZ(0);
-}
-
-.scroller {
 }
 
 .subHeader,
@@ -432,13 +430,6 @@ input[type=text]#search {
     bottom: 0;
     left: 0;
     width: 100%;
-}
-
-data-cardid="conversation"] .scroller {
-    overflow-x: hidden;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 24px;
 }
 
 .settings {

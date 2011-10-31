@@ -10,33 +10,27 @@
   <body>
     <div id="cards">
       <div data-cardid="signIn" title="Sign In" class="card noiscroll">
-        <div class="scroller">
-          <!-- a class="homeNav browserSignIn" data-nonav="nonav" href="#browserSignIn">Sign In With BrowserID</a -->
-          <form class="signInForm" action="#">
-            <input type="text" name="displayName" value="" placeholder="name">
-            <input type="email" name="email" value="" placeholder="email">
-            <input type="submit" name="go" value"Go">
-          </form>
-        </div>
+        <!-- a class="homeNav browserSignIn" data-nonav="nonav" href="#browserSignIn">Sign In With BrowserID</a -->
+        <form class="signInForm" action="#">
+          <input type="text" name="displayName" value="" placeholder="name">
+          <input type="email" name="email" value="" placeholder="email">
+          <input type="submit" name="go" value"Go">
+        </form>
       </div>
       <div data-cardid="start" title="submarine" class="card noiscroll">
-        <div class="scroller">
-          <a class="homeNav" href="#shareLocation">Share Location With...</a>
-          <div class="shareInfo">
-            <div class="photo" data-bind="photo"></div>
-            <div class="displayName" data-bind="displayName"></div>
-            <div class="phoneNumber" data-bind="phoneNumber"></div>
-          </div>
+        <a class="homeNav" href="#shareLocation">Share Location With...</a>
+        <div class="shareInfo">
+          <div class="photo" data-bind="photo"></div>
+          <div class="displayName" data-bind="displayName"></div>
+          <div class="phoneNumber" data-bind="phoneNumber"></div>
         </div>
       </div>
       <div data-cardid="inviteStart" title="submarine invite" class="card noiscroll">
-        <div class="scroller">
-          <div class="inviter">
-              Do you want to use submarine to help find and chat with
-              <span data-bind="displayName"></span>?
-          </div>
-          <a class="conversationLink" href="#conversation?id=">Yes</a>
+        <div class="inviter">
+            Do you want to use submarine to help find and chat with
+            <span data-bind="displayName"></span>?
         </div>
+        <a class="conversationLink" href="#conversation?id=">Yes</a>
       </div>
       <div data-cardid="peeps" title="Private" class="card conversations">
         <div class="subHeader hbox">
@@ -46,51 +40,41 @@
           <button class="search">search</button>
           <button class="button" data-href="#listUsersForAddPeep">add contact</button>
         </div>
-        <div class="scroller" data-childclass="peepSummary">
+        <div data-childclass="peepSummary">
         </div>
       </div>
-      <div data-cardid="notifications" title="Notifications" class="card">
-        <div class="scroller" data-childaddedyou="personLink">
-        </div>
+      <div data-cardid="notifications" title="Notifications" class="card" data-childaddedyou="personLink">
       </div>
-      <div data-cardid="listUsersForAddPeep" title="Add Peep" class="card">
-        <div class="scroller" data-childclass="addPeepLink">
-        </div>
+      <div data-cardid="listUsersForAddPeep" data-childclass="addPeepLink" title="Add Peep" class="card">
       </div>
       <div data-cardid="user" class="card">
-        <div class="scroller">
-          <div class="peepInfo">
-            <img class="peepInfoPic" data-bind="pic" data-attr="src" src="i/face2.png">
-            <span data-bind="name" class="peepInfoName"></span>
-          </div>
-          <div class="peepConversations" data-childclass="convListItem">
-          </div>
-          <form data-class="compose"></form>
-          <span class="addToChatMessage hidden">This person needs to add you before you can chat with them.</span>
-          <form class="addPeepButtonForm hidden">
-            <input type="hidden" name="peepId" value="" data-bind="id" data-attr="value">
-            <button class="">Add</button>
-          </form>
+        <div class="peepInfo">
+          <img class="peepInfoPic" data-bind="pic" data-attr="src" src="i/face2.png">
+          <span data-bind="name" class="peepInfoName"></span>
         </div>
+        <div class="peepConversations" data-childclass="convListItem">
+        </div>
+        <form data-class="compose"></form>
+        <span class="addToChatMessage hidden">This person needs to add you before you can chat with them.</span>
+        <form class="addPeepButtonForm hidden">
+          <input type="hidden" name="peepId" value="" data-bind="id" data-attr="value">
+          <button class="">Add</button>
+        </form>
       </div>
       <div data-cardid="conversation" title="Conversation" class="card">
-        <div class="scroller">
-          <div class="location">
-            <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"/></span>
-            <span class="name" data-bind="from.name"></span>
-            is <span class="dist"></span> km away.
-          </div>
-          <div class="conversationMessages" data-childclass="message">
-          </div>
+        <div class="location">
+          <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"/></span>
+          <span class="name" data-bind="from.name"></span>
+          is <span class="dist"></span> km away.
+        </div>
+        <div class="conversationMessages" data-childclass="message">
         </div>
         <div class="cardFooter">
           <form data-class="compose"></form>
         </div>
       </div>
       <div data-cardid="compose" title="Compose" class="card">
-        <div class="scroller">
-          <form data-class="compose"></form>
-        </div>
+        <form data-class="compose"></form>
       </div>
     </div>
 

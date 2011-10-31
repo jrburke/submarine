@@ -57,12 +57,9 @@ define(function (require) {
       maps = require('async!http://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry'),
 
       browserId = navigator.id,
-      timestampDom = $('#timestamp'),
-      errDom = $('#error'),
       commonNodes = {},
-      domain = location.protocol + '//' + location.host +
-               (location.port ? ':' + location.port : '') + '/',
 
+      body = $('body'),
       markerBaseUrl = 'http://www.tagneto.org/temp/bug',
       lastHeading = -1000,
       lastDirection,
@@ -70,7 +67,7 @@ define(function (require) {
       spread = 5,
 
       masterMap, masterMarker, watchId, update, init, nodelessActions, notifyDom,
-      currentConvId, messageCloneNode, newConversationNodeWidth, newMessageIScroll,
+      currentConvId, messageCloneNode,
       myLatLon, LatLng, spherical;
 
   // The maps API is not AMD aware, get a handle from the global name,
@@ -80,11 +77,7 @@ define(function (require) {
   spherical = maps.geometry.spherical;
 
   function getChildCloneNode(node) {
-    // Try on the actual node, and if not there, check the scroller node
     var attr = node.getAttribute('data-childclass');
-    if (!attr) {
-      attr = $('.scroller', node).attr('data-childclass');
-    }
     return commonNodes[attr];
   }
 
@@ -122,11 +115,6 @@ define(function (require) {
     metaNode.parentNode.insertBefore(doc.createTextNode(message.text), metaNode);
   }
 
-  function adjustNewScrollerWidth(convScrollerDom) {
-    convScrollerDom = convScrollerDom || $('.newConversationScroller');
-    convScrollerDom.css('width', (convScrollerDom.children().length * newConversationNodeWidth) + 'px');
-  }
-
   function makeMessageBubble(node, message) {
     var nodeDom = $(node),
         senderNode, senderDom,
@@ -152,52 +140,6 @@ define(function (require) {
     }
 
     return node;
-  }
-
-  function insertUnseenMessage(message) {
-    var convNotificationDom = $('.newConversationNotifications'),
-        convScrollerDom = convNotificationDom.find('.newConversationScroller'),
-        convNode, convCloneNode, node, nodeDom;
-
-    // Add a conversation box to the start card, but only if there is not
-    // one already.
-    if (convNotificationDom.find('[data-convid="' + message.convId + '"]').length === 0) {
-      convNode = convNotificationDom[0];
-      convCloneNode = getChildCloneNode(convNode);
-      node = convCloneNode.cloneNode(true);
-      nodeDom = $(node);
-      updateDom(nodeDom, message);
-
-      // Insert friendly date-time
-      nodeDom.find('.newConversationTime')
-        .text(friendly.date(new Date(message.time)).friendly)
-        .attr('data-time', message.time);
-
-      // Update the hyperlink
-      node.href = node.href + encodeURIComponent(message.convId);
-
-      // Add the conversation ID to the node
-      node.setAttribute('data-convid', message.convId);
-
-      convScrollerDom.prepend(node);
-
-      if (!newConversationNodeWidth) {
-        // Lame. adding extra 20px. TODO fix this.
-        newConversationNodeWidth = $(node).outerWidth() + 20;
-      }
-
-      // Figure out how big to make the horizontal scrolling area.
-      adjustNewScrollerWidth(convScrollerDom);
-
-      if (newMessageIScroll) {
-        newMessageIScroll.refresh();
-      }
-
-      // Activate new notification, but only if not already on start page.
-      if (cards.currentCard().attr('data-cardid') !== 'start') {
-        notifyDom.show();
-      }
-    }
   }
 
   function formToObject(formNode) {
@@ -363,13 +305,13 @@ define(function (require) {
 
   }, false);
 
-  function adjustCardScroll(card) {
+  function adjustCardScroll() {
     // Scroll to the bottom of the conversation
     setTimeout(function () {
       // If the message contents are longer than the containing element,
       // scroll down.
-      if (card.innerHeight() < card.find('.scroller').innerHeight()) {
-        card[0].scrollTop = card[0].scrollHeight;
+      if (window.innerHeight < body.outerHeight()) {
+        body[0].scrollTop = body.outerHeight();
       }
     }, 100);
   }
@@ -532,7 +474,7 @@ define(function (require) {
         // Let the server know the messages have been seen
         conversation.setSeen();
 
-        adjustCardScroll(dom);
+        adjustCardScroll();
       });
 
       // Set up compose area
@@ -578,7 +520,7 @@ define(function (require) {
         // Update the current conversation.
         card.find('.conversationMessages').append(makeMessageBubble(messageCloneNode.cloneNode(true), message));
 
-        adjustCardScroll(card);
+        adjustCardScroll();
 
         // Let the server know the messages have been seen
         moda.conversation({
@@ -612,7 +554,7 @@ define(function (require) {
           }
         }
 
-        //adjustCardScroll(card);
+        //adjustCardScroll();
       }
     }
   });
