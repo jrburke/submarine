@@ -266,7 +266,8 @@ a {
     margin: 0;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="email"] {
     width: 100%;
     font-size: 12px;
     height: 24px;
@@ -297,18 +298,37 @@ input[type="text"]#search {
 }
 
 
+[data-cardid="signIn"] {
+  padding: 20px;
+  text-align: center;
+}
+
+  [data-cardid="signIn"] input {
+    padding-bottom: 20px;
+  }
+
 [data-cardid="start"] {
   padding: 20px;
   text-align: center;
 }
 
-  [data-cardid="start"] h1 {
+  [data-cardid="start"] .startTitle {
     font-size: 18px;
     margin-bottom: 20px;
+    text-align: left;
   }
 
   [data-cardid="start"] .shareInfo {
     margin: 20px 0;
+  }
+
+[data-cardid="inviteStart"] {
+  padding: 20px;
+  text-align: center;
+}
+
+  [data-cardid="inviteStart"] .inviter {
+    margin-bottom: 20px;
   }
 
 .conversations,

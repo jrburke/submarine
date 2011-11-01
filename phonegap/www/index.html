@@ -14,11 +14,14 @@
         <form class="signInForm" action="#">
           <input type="text" name="displayName" value="" placeholder="name">
           <input type="email" name="email" value="" placeholder="email">
-          <input type="submit" name="go" value"Go">
+          <button class="wide" type="submit">sign in</button>
         </form>
       </div>
       <div data-cardid="start" title="submarine" class="card noiscroll">
-        <h1>Submarine: Locate your friends</h1>
+        <div class="startTitle hbox">
+          <div class="title boxFlex">Locate your friends</div>
+          <button class="small red" data-href="#signOut">sign out</button>
+        </div>
         <button class="wide shareLocation" data-href="#shareLocation">Share Location With...</button>
         <div class="shareInfo hidden">
           <div class="userProfileHeader hbox">
@@ -43,7 +46,7 @@
             Do you want to use submarine to help find and chat with
             <span data-bind="displayName"></span>?
         </div>
-        <a class="conversationLink" href="#conversation?id=">Yes</a>
+        <button class="wide conversationLink" data-href="#conversation?id=">Yes</button>
       </div>
       <div data-cardid="peeps" title="Private" class="card conversations">
         <div class="subHeader hbox">
@@ -77,7 +80,7 @@
       <div data-cardid="conversation" title="Conversation" class="card">
         <div class="location">
           <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"/></span>
-          <span class="name" data-bind="from.name"></span>
+          <span class="name" data-bind="from.displayName"></span>
           is <span class="dist"></span> km away.
         </div>
         <div class="conversationMessages conversation" data-childclass="message">
@@ -108,7 +111,7 @@
 
       <a href="#conversation?id=" data-classimpl="newConversation" class="newConversation">
         <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"></span>
-        <span class="newConversationPeep" data-bind="from.name"></span>
+        <span class="newConversationPeep" data-bind="from.displayName"></span>
         <span class="newConversationTime"></span>
         <span class="newConversationText" data-bind="text"></span>
       </a>

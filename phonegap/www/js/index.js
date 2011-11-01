@@ -1,5 +1,5 @@
 
-/*jslint strict: false, indent: 2, plusplus: false */
+/*jslint strict: false, indent: 2, plusplus: false, regexp: false */
 /*global define: false, location: true, navigator: false, console: false,
   google: false, window: false, alert: false, requirejs: false,
   setInterval: false, localStorage: false, setTimeout: false */
@@ -9,7 +9,7 @@ if (!navigator.geolocation) {
   location = 'requirements.html';
 }
 
-var remoteServerUrl = 'http://10.0.1.9:8176/';
+var remoteServerUrl = 'http://10.244.28.13:8176/';
 
 (function () {
   // If not on the start of the UI, redirect to top of the UI,
@@ -319,6 +319,10 @@ define(function (require) {
 
   // Set up card update actions.
   update = {
+    'signOut': function (data, dom) {
+      moda.signOut();
+    },
+
     'signIn': function (data, dom) {
 
       // Create an explicit click handler to help some iphone devices,
@@ -354,8 +358,10 @@ define(function (require) {
         updateDom(dom.find('.inviter'), invite.inviter);
 
         // Update the link to start the conversation.
-        var linkNode = dom.find('.conversationLink')[0];
-        linkNode.href += invite.convId;
+        var linkNode = dom.find('.conversationLink')[0],
+            href = linkNode.getAttribute('data-href');
+
+        linkNode.setAttribute('data-href', href + invite.convId);
 
         // Clean up localstorage
         delete localStorage.invite;
@@ -482,7 +488,7 @@ define(function (require) {
         init();
       } else {
         // Remove the sign in card
-        $('[data-cardid="signIn"]', '#cardContainer').remove();
+        cards.remove($('[data-cardid="signIn"]'));
 
         // Show the start card
         cards.onNav('start', {});
@@ -531,6 +537,9 @@ define(function (require) {
             ll2 = new LatLng(location.lat, location.lon);
             // Divide by 1000 to get kilometers.
             dist = maps.geometry.spherical.computeDistanceBetween(ll1, ll2) / 1000;
+
+            // Nicely format the number.
+            dist = (dist + '').replace(/(^\d*\.\d\d).*/, '$1');
 
             card.find('.location .dist').text(dist);
           }

@@ -392,17 +392,11 @@ define(function (require, exports) {
     }
   };
 
-  transport.signOut = function (callback) {
-    delete localStorage.me;
-    delete localStorage.assertion;
-    delete localStorage.assertionData;
-
+  transport.signOut = function () {
     me = undefined;
     localMeCheck = false;
 
-    if (callback) {
-      callback();
-    }
+    triggerSignOut();
   };
 
   /**

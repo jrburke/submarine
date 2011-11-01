@@ -239,7 +239,7 @@ Peep
     }
 
     this.id = obj.id;
-    this.name = obj.name;
+    this.displayName = obj.displayName;
     this.pic = obj.pic;
     this.pinned = false;
     this.frecency = 0;

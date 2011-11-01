@@ -251,6 +251,20 @@ define(function (require) {
     throw new Error('Need to implement cards.onNav');
   };
 
+  cards.remove = function (nodeOrDom) {
+    var node = $(nodeOrDom)[0],
+        i = 0,
+        cardDom;
+
+    for (i = 0; (cardDom = cardList[i]); i++) {
+      if (cardDom[0] === node) {
+        cardList.splice(i, 1);
+        node.parentNode.removeChild(node);
+        break;
+      }
+    }
+  };
+
   /**
    * Adds a card node to the list, but does not show it. Call forward() or
    * show() to do that.
