@@ -195,7 +195,7 @@ a {
 }
 
 .subHeader,
-#compose {
+.compose {
     height: 34px;
     line-height: 24px;
     padding: 5px;
@@ -216,7 +216,7 @@ a {
             box-shadow: 0 2px 0 rgba(150, 150, 150, 0.15);
 }
 
-#compose {
+.compose {
     border-top: 1px solid #aaa;
     margin-top: -1px;
 
@@ -266,7 +266,7 @@ a {
     margin: 0;
 }
 
-input[type=text] {
+input[type="text"] {
     width: 100%;
     font-size: 12px;
     height: 24px;
@@ -287,7 +287,7 @@ input[type=text] {
             border-radius: 3px;
 }
 
-input[type=text]#search {
+input[type="text"]#search {
     -webkit-border-radius: 3px 0 0 3px;
        -moz-border-radius: 3px 0 0 3px;
          -o-border-radius: 3px 0 0 3px;
@@ -329,8 +329,8 @@ input[type=text]#search {
       height: 40px;
     }
 
-    .conversations a,
-    .conversation a {
+    .conversations,
+    .conversation {
         background-color: #fff;
         padding: 10px 5px;
         border-bottom: 1px solid #ddd;
@@ -338,47 +338,47 @@ input[type=text]#search {
         color: inherit;
     }
 
-    .conversations a .msgPreviewHeader,
-    .conversation a .msgHeader {
+    .conversations .msgPreviewHeader,
+    .conversation .msgHeader {
         line-height: 26px;
     }
 
-    .conversations a .author,
-    .conversation a .author {
+    .conversations .author,
+    .conversation .author {
         font-weight: bold;
     }
 
-    .conversations a .participants {
+    .conversations .participants {
         margin-left: 3px;
         color: #666;
     }
 
-    .conversations a .new {
+    .conversations .new {
         color: #0063FF;
         margin-left: 3px;
     }
 
-    .conversations a .time,
-    .conversation a .time {
+    .conversations .time,
+    .conversation .time {
         font-size: 12px;
         color: #aaa;
         margin-left: 5px;
     }
 
-    .conversations a .snippet {
+    .conversations .snippet {
         color: #aaa;
         font-size: 12px;
     }
 
-    .conversations a.read {
+    .conversations .read {
         background-color: #fafafa;
     }
 
-    .conversations a.read .author {
+    .conversations .read .author {
         color: #666;
     }
 
-    .conversations a.unread .author:before {
+    .conversations .unread .author:before {
         content: '\25cf';
         color: #0063FF;
         margin-right: 3px;
@@ -395,27 +395,24 @@ input[type=text]#search {
         border-bottom: none;
     }
 
-[data-cardid="conversation"] .compose {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+.compose .send {
+  margin-left: 5px;
 }
 
 .settings {
     padding: 10px 5px;
 }
 
-#userProfileHeader {
+.userProfileHeader {
     margin: 0 0 10px;
 }
 
-#userProfileHeader .username {
+.userProfileHeader .username {
     line-height: 48px;
     font-weight: bold;
 }
 
-#menu {
+.menu {
     list-style-type: none;
     background-color: white;
     border-radius: 10px;
@@ -423,18 +420,19 @@ input[type=text]#search {
     margin: 0 0 10px 0;
 }
 
-#menu li {
+.menu li {
     font-size: 12px;
     padding: 10px;
     border-bottom: 1px solid #ddd;
 }
 
-#menu li:last-child {
+.menu li:last-child {
     border-bottom: none;
 }
 
-#menu li label {
+.menu li label {
     color: #666;
+    text-align: left;
 }
 
 #alert {
@@ -508,7 +506,7 @@ button {
     border-style: solid;
     border-color: #708BB5 #708BB5 #516B95;
     color: #FFFFFF;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: bold;
     height: 36px;
     padding: 0 10px;

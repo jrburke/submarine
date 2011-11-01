@@ -21,10 +21,18 @@
         <h1>Submarine: Locate your friends</h1>
         <button class="wide shareLocation" data-href="#shareLocation">Share Location With...</button>
         <div class="shareInfo hidden">
-          <h2>You chose:</h2>
-          <div class="photo" data-bind="photo"></div>
-          <div class="displayName" data-bind="displayName"></div>
-          <div class="phoneNumber" data-bind="phoneNumber"></div>
+          <div class="userProfileHeader hbox">
+            <div class="avatar">
+              <img src="i/face2.png" data-bind="pic" data-attr="src">
+            </div>
+            <div class="username overflow" data-bind="displayName"></div>
+          </div>
+          <ul class="menu">
+            <li class="hbox">
+              <label class="boxFlex">Phone</label>
+              <div class="phoneNumber" data-bind="phoneNumber"></div>
+            </li>
+          </ul>
           <p>Send and SMS to this person, then come back to Submarine to
           locate this person and chat with them.</p>
         </div>
@@ -72,7 +80,7 @@
           <span class="name" data-bind="from.name"></span>
           is <span class="dist"></span> km away.
         </div>
-        <div class="conversationMessages" data-childclass="message">
+        <div class="conversationMessages conversation" data-childclass="message">
         </div>
         <div class="cardFooter">
           <form data-class="compose"></form>
@@ -90,7 +98,12 @@
         <input type="hidden" name="from" value="">
         <input type="hidden" name="to" value="">
         <input type="hidden" name="convId" value="">
-        <input type="text" name="text">
+        <div class="hbox">
+          <div class="boxFlex">
+            <input type="text" name="text" placeholder="type message">
+          </div>
+          <button class="send small">send</button>
+        </div>
       </form>
 
       <a href="#conversation?id=" data-classimpl="newConversation" class="newConversation">
@@ -132,13 +145,17 @@
 
       <a data-classimpl="convListItem" class="item" href="#conversation?id="><span class="meta"></span></a>
 
-      <div data-classimpl="message"  class="bubble">
-        <a href='#user?id=' class="sender">
-          <span class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"/></span>
-          <span class="name" data-bind="from.name"></span>
-        </a>
-        <div class="body">
-          <div class="meta">
+      <div data-classimpl="message"  class="bubble sender hbox">
+        <div>
+          <div class="avatar"><img src="i/face2.png" class="avatar" data-bind="from.pic" data-attr="src"/></div>
+        </div>
+        <div class="msg boxFlex">
+          <div class="msgHeader hbox">
+            <span class="author boxFlex overflow" data-bind="from.displayName"></span>
+            <span class="time"></span>
+          </div>
+          <div class="messages">
+            <div class="message"></div>
           </div>
         </div>
       </div>

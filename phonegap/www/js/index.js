@@ -110,9 +110,10 @@ define(function (require) {
 
   function insertTextAndMeta(nodeDom, message) {
     // Insert the friendly time in meta, and message text before meta
-    var metaNode = nodeDom.find('.meta').text(friendly.date(new Date(message.time)).friendly)[0];
+    var metaNode = nodeDom.find('.time').text(friendly.date(new Date(message.time)).friendly)[0];
     metaNode.setAttribute('data-time', message.time);
-    metaNode.parentNode.insertBefore(doc.createTextNode(message.text), metaNode);
+
+    nodeDom.find('.message').text(message.text);
   }
 
   function makeMessageBubble(node, message) {
@@ -127,17 +128,17 @@ define(function (require) {
     insertTextAndMeta(nodeDom, message);
 
     // Update the URL to use for the peep
-    senderDom = nodeDom.find('.sender');
-    senderNode = senderDom[0];
-    senderNode.href = senderNode.href + encodeURIComponent(message.from.id);
+    //senderDom = nodeDom.find('.sender');
+    //senderNode = senderDom[0];
+    //senderNode.href = senderNode.href + encodeURIComponent(message.from.id);
 
     // Apply different style if message is from "me"
     nodeDom.addClass(isMe ? 'right' : 'left');
 
     // If me, then swap the positions of the picture and name.
-    if (isMe) {
-      senderDom.find('.name').prependTo(senderDom);
-    }
+    //if (isMe) {
+    //  senderDom.find('.name').prependTo(senderDom);
+    //}
 
     return node;
   }
