@@ -29,7 +29,8 @@ requirejs.config({
   paths: {
     'socket.io': remoteServerUrl + 'socket.io/socket.io',
     'browserId': 'https://browserid.org/include'
-  }
+  },
+  waitSeconds: 30
 });
 
 define(function (require) {
