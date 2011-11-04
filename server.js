@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/mcdrop for details
  */
 
-/*jslint strict: false, indent: 2, nomen: false */
+/*jslint strict: false, indent: 2, nomen: false, regexp: false */
 /*global require: false, console: false, process: false */
 
 
@@ -18,15 +18,29 @@ requirejs(['require'], function (require) {
 
   var nodeStatic = require('node-static'),
       http = require('http'),
+      https = require('https'),
+      fs = require('fs'),
       url = require('url'),
       io = require('socket.io'),
       querystring = require('querystring'),
 
-      staticServer = new nodeStatic.Server('./phonegap/www'),
+      wwwRoot = './phonegap/www',
+      staticServer = new nodeStatic.Server(wwwRoot),
       clients = require('./server/clients'),
-      server, listener;
+      serverUrl = require('./server/serverUrl'),
 
-  server = http.createServer(function (request, response) {
+      penv = process.env,
+      protocol = penv.SUBMARINEPROTOCOL || 'http',
+      isHttps = protocol === 'https',
+      port = penv.SUBMARINEPORT || penv.PORT,
+
+      server, listener, socketIoOptions;
+
+  socketIoOptions = {
+    transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
+  };
+
+  function listenToRequest(request, response) {
     //Assuming data is a utf8 string. This will be a problem later,
     //with image uploads.
     var data = '';
@@ -37,7 +51,8 @@ requirejs(['require'], function (require) {
 
     request.on('end', function () {
       var location = url.parse(request.url, true),
-          contentType = request.headers['Content-Type'] || '';
+          contentType = request.headers['Content-Type'] || '',
+          contents;
 
       if (location.pathname.indexOf('/api/') === 0) {
 
@@ -49,14 +64,14 @@ requirejs(['require'], function (require) {
             data = querystring.parse(data);
           }
         } else {
-          //Data is just the location.query for gets and related methods.
+          // Data is just the location.query for gets and related methods.
           data = location.query;
         }
 
-        //do the API thing.
+        // Do the API thing.
         require(['./server/actions' + location.pathname], function (action) {
           action(data, function (responseData) {
-            //All responses should be JSON friendly data.
+            // All responses should be JSON friendly data.
             var contents = JSON.stringify(responseData, null, '  ');
             response.writeHead(200, {
               'Content-Type': 'text/plain',
@@ -66,18 +81,45 @@ requirejs(['require'], function (require) {
             response.end();
           }, require, response);
         });
+
+      } else if (location.pathname === '/' ||
+                 location.pathname === '/index.html') {
+        // Read in index.html and replace remoteServerUrl with real URL
+        contents = fs.readFileSync(wwwRoot + '/index.html', 'utf8');
+        contents = contents.replace(/var remoteServerUrl = '[^']*'/,
+                                    "var remoteServerUrl = '" + serverUrl + "'");
+        response.writeHead(200, {
+          'Content-Type': 'text/html;charset=UTF-8',
+          'Content-Length': contents.length
+        });
+        response.write(contents, 'utf8');
+        response.end();
       } else {
         staticServer.serve(request, response);
       }
     });
-  });
-  server.listen(process.env.SUBMARINEPORT || process.env.PORT);
+  }
 
-  console.log('Listening on http://127.0.0.1:' + ((process.env.SUBMARINEPORT || process.env.PORT)));
+  if (isHttps) {
+    socketIoOptions.secure = true;
 
-  listener = io.listen(server, {
-    transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
-  });
+    server = https.createServer({
+      key: fs.readFileSync(penv.SUBMARINEKEY),
+      cert: fs.readFileSync(penv.SUBMARINECERT),
+      requestCert: true,
+      ca: [
+        fs.readFileSync(penv.SUBMARINECA)
+      ]
+    }, listenToRequest);
+  } else {
+    server = http.createServer(listenToRequest);
+  }
+
+  server.listen(port);
+
+  console.log('Listening on ' + protocol + '://127.0.0.1:' + port);
+
+  listener = io.listen(server, socketIoOptions);
 
   listener.sockets.on('connection', function (client) {
     //client.send({ buffer: buffer });

@@ -1,15 +1,12 @@
 
 /*jslint strict: false, indent: 2, plusplus: false, regexp: false */
-/*global define: false, location: true, navigator: false, console: false,
-  google: false, window: false, alert: false, requirejs: false,
-  setInterval: false, localStorage: false, setTimeout: false */
+/*global define, navigator, console, google, window, alert, requirejs,
+  setInterval, localStorage, setTimeout, remoteServerUrl, location: true */
 
 //Do not even bother if location is not supported.
 if (!navigator.geolocation) {
   location = 'requirements.html';
 }
-
-var remoteServerUrl = 'http://10.244.28.13:8176/';
 
 (function () {
   // If not on the start of the UI, redirect to top of the UI,
