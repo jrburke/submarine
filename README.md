@@ -22,6 +22,8 @@ know its info:
 If you want to run a https server:
 
 * export SUBMARINEPROTOCOL=https
+* export SUBMARINEHOST=some.host-or-ipaddr.ocm
+* export SUBMARINEPORT=8176
 * export SUBMARINEKEY=/path/to/private/key
 * export SUBMARINECERT=/path/to/cert
 * export SUBMARINECA=/path/to/intermediate/certificate/ca

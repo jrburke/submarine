@@ -51,7 +51,9 @@ define(function (require) {
       moda = require('moda'),
       cards = require('cards'),
       friendly = require('friendly'),
-      maps = require('async!http://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry'),
+      maps = require('maps!sensor=true&libraries=geometry'),
+      LatLng = maps.LatLng,
+      spherical = maps.geometry.spherical,
 
       browserId = navigator.id,
       commonNodes = {},
@@ -65,13 +67,7 @@ define(function (require) {
 
       masterMap, masterMarker, watchId, update, init, nodelessActions, notifyDom,
       currentConvId, messageCloneNode, smsContact,
-      myLatLon, LatLng, spherical;
-
-  // The maps API is not AMD aware, get a handle from the global name,
-  // and create some other aliases.
-  maps = google.maps;
-  LatLng = google.maps.LatLng;
-  spherical = maps.geometry.spherical;
+      myLatLon;
 
   function getChildCloneNode(node) {
     var attr = node.getAttribute('data-childclass');
