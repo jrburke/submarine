@@ -14,7 +14,7 @@
 define(function () {
     var pathRegExp = /(\/|^)env\/|\{env\}/,
         value = 'web',
-        ua = navigator.userAgent;
+        ua = typeof navigator !== 'undefined' && navigator.userAgent;
 
     if (typeof location !== 'undefined' && location.protocol === 'file:') {
         //A device installation. Nothing says quality like UA sniffing.
@@ -31,6 +31,11 @@ define(function () {
     }
 
     env.load = function (name, req, load, config) {
+        if (config.isBuild) {
+            load();
+            return;
+        }
+
         //Allow override in the config.
         if (config.env) {
             value = config.env;

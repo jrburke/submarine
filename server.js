@@ -21,6 +21,7 @@ requirejs(['require'], function (require) {
       https = require('https'),
       fs = require('fs'),
       url = require('url'),
+      path = require('path'),
       io = require('socket.io'),
       querystring = require('querystring'),
 
@@ -52,7 +53,7 @@ requirejs(['require'], function (require) {
     request.on('end', function () {
       var location = url.parse(request.url, true),
           contentType = request.headers['Content-Type'] || '',
-          contents;
+          contents, optimizedIndex;
 
       if (location.pathname.indexOf('/api/') === 0) {
 
@@ -94,6 +95,21 @@ requirejs(['require'], function (require) {
         });
         response.write(contents, 'utf8');
         response.end();
+
+      } else if (location.pathname === '/js/index.js') {
+        // Serve the optimized contents if available.
+        optimizedIndex = wwwRoot + '/../www-built/js/index.js';
+        if (path.existsSync(optimizedIndex)) {
+          contents = fs.readFileSync(optimizedIndex, 'utf8');
+          response.writeHead(200, {
+            'Content-Type': 'text/javascript;charset=UTF-8',
+            'Content-Length': contents.length
+          });
+          response.write(contents, 'utf8');
+          response.end();
+        } else {
+          staticServer.serve(request, response);
+        }
       } else {
         staticServer.serve(request, response);
       }
