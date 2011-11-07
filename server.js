@@ -34,7 +34,9 @@ requirejs(['require'], function (require) {
       app, listener, socketIoOptions;
 
   socketIoOptions = {
-    transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
+    // Figure out a good interaction with web sockets and https
+    // for now just use jsonp.
+    transports: ['jsonp-polling'] //['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
   };
 
   // Use built www if it is available.
@@ -57,18 +59,20 @@ requirejs(['require'], function (require) {
     app = express.createServer();
   }
 
-  // Set up static file serving.
-  app.configure(function () {
-    app.use(express['static'](wwwRoot));
-  });
-
-  //
-  app.get('/', function (req, res) {
+  function handleIndex(req, res) {
     // Read in index.html and replace remoteServerUrl with real URL
     var contents = fs.readFileSync(wwwRoot + '/index.html', 'utf8');
     contents = contents.replace(/var remoteServerUrl = '[^']*'/,
                                 "var remoteServerUrl = '" + serverUrl + "'");
     res.send(contents);
+  }
+
+  app.get('/', handleIndex);
+  app.get('/index.html', handleIndex);
+
+  // Set up static file serving.
+  app.configure(function () {
+    app.use(express['static'](wwwRoot));
   });
 
   app.listen(port);
