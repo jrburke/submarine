@@ -22,7 +22,7 @@ know its info:
 If you want to run a https server:
 
 * export SUBMARINEPROTOCOL=https
-* export SUBMARINEHOST=some.host-or-ipaddr.ocm
+* export SUBMARINEHOST=some.host-or-ipaddr.com
 * export SUBMARINEPORT=8176
 * export SUBMARINEKEY=/path/to/private/key
 * export SUBMARINECERT=/path/to/cert
@@ -32,8 +32,13 @@ The websocket server is run on a different port due to weirdness with
 node+https+static files.
 
 * export SUBMARINESOCKETPROTOCOL=https
-* export SUBMARINESOCKETHOST=some.host-or-ipaddr.ocm
+* export SUBMARINESOCKETHOST=some.host-or-ipaddr.com
 * export SUBMARINESOCKETPORT=8176
 * export SUBMARINESOCKETKEY=/path/to/private/key
 * export SUBMARINESOCKETCERT=/path/to/cert
 * export SUBMARINESOCKETCA=/path/to/intermediate/certificate/ca
+
+This value can be used by the socket server to set the correct name of the
+front end server that should be used for a given invitation code:
+
+* SUBMARINESERVERURL=https://som.host-or-ipaddr.com

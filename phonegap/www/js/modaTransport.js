@@ -275,10 +275,13 @@ define(function (require, exports) {
 
     var foo = require.toUrl('socket.io');
 
+    url = url || remoteSocketServerUrl;
+
     try {
-      socket = io.connect(url || remoteSocketServerUrl || null, {
+      socket = io.connect(url, {
         rememberTransport: false,
-        transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
+        transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile'],
+        secure: url.indexOf('https:') === 0
       });
 
       socket.on('clientMessage', function (data) {
