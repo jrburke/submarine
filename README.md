@@ -65,3 +65,7 @@ was replaced with:
             PhoneGap.onDOMContentLoaded.fire();
         }, false);
     }
+
+Also, the if (!PhoneGap.hasResource("device")) section was put above the
+the if (!PhoneGap.hasResource("capture")) section, since the addConstructor for
+capture references device.

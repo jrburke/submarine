@@ -1,7 +1,8 @@
 
 /*jslint strict: false, indent: 2, plusplus: false, regexp: false */
 /*global define, navigator, console, google, window, alert, requirejs,
-  setInterval, localStorage, setTimeout, remoteSocketServerUrl, location: true */
+  setInterval, localStorage, setTimeout, remoteSocketServerUrl, Image,
+  location: true */
 
 //Do not even bother if location is not supported.
 if (!navigator.geolocation) {
@@ -64,6 +65,8 @@ define(function (require) {
       lastDirection,
       //How much spread in the heading to ignore for changes.
       spread = 5,
+
+      camera = navigator.camera,
 
       masterMap, masterMarker, watchId, update, init, nodelessActions, notifyDom,
       currentConvId, messageCloneNode, smsContact,
@@ -619,6 +622,8 @@ define(function (require) {
       notifyDom = $('#notify');
     };
 
+    var canvasNode, ctx, img, currentRotation = 90;
+
     //Do event wiring here.
     $('body')
       .delegate('.signInForm', 'submit', function (evt) {
@@ -630,6 +635,73 @@ define(function (require) {
         moda.signInHack({
           displayName: formNode.displayName.value,
           email: formNode.email.value
+        });
+      })
+      .delegate('.signInForm .imgPreview', 'click', function (evt) {
+        //Rotate by 90 degrees
+        console.log('imgPreview click');
+        if (ctx) {
+          currentRotation += 90;
+          var x = 0,
+              y = 0,
+              width = img.width,
+              height = img.height;
+
+          if (currentRotation > 359) {
+            currentRotation -= 360;
+          }
+
+          if (currentRotation === 90) {
+            y = -height;
+            width = img.height;
+            height = img.width;
+          } else if (currentRotation === 180) {
+            x = -width;
+            y = -height;
+          } else if (currentRotation === 270) {
+            x = -width;
+            width = img.height;
+            height = img.width;
+          }
+
+          console.log("ROTATING2: " + currentRotation);
+
+          canvasNode.setAttribute('width', width);
+          canvasNode.setAttribute('height', height);
+
+          ctx.rotate(currentRotation * Math.PI / 180);
+          ctx.drawImage(img, x, y);
+        }
+      })
+      // Handle click to get picture
+      .delegate('.signInForm .pictureCapture', 'click', function (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        var formNode = evt.target.parentNode;
+
+        camera.getPicture(function (base64Data) {
+          canvasNode = $(formNode).find('.imgPreview')[0];
+          img = new Image();
+          ctx = canvasNode.getContext('2d');
+
+          img.onload = function () {
+            // Draw the image into the canvas.
+            canvasNode.setAttribute('width', img.height);
+            canvasNode.setAttribute('height', img.width);
+
+            ctx.rotate(currentRotation * Math.PI / 180);
+            ctx.drawImage(img, 0, -img.height);
+          };
+          img.src = 'data:image/jpeg;base64,' + base64Data;
+
+        }, function (err) {
+
+        }, {
+          quality: 75,
+          targetWidth: 100,
+          targetHeight: 100,
+          MediaType: camera.MediaType.PICTURE
         });
       })
       // Handle clicking on the SMS button.
