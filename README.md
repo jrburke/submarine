@@ -42,3 +42,26 @@ This value can be used by the socket server to set the correct name of the
 front end server that should be used for a given invitation code:
 
 * SUBMARINESERVERURL=https://som.host-or-ipaddr.com
+
+## Phonegap patches
+
+phonegap.js has been patched to trigger its domcontentloaded listener if the
+file is added after domcontentloaded fires.
+
+So this block:
+
+    // Listen for DOMContentLoaded and notify our channel subscribers
+    document.addEventListener('DOMContentLoaded', function() {
+        PhoneGap.onDOMContentLoaded.fire();
+    }, false);
+
+was replaced with:
+
+    // Listen for DOMContentLoaded and notify our channel subscribers
+    if (document.readyState === 'complete') {
+        PhoneGap.onDOMContentLoaded.fire();
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            PhoneGap.onDOMContentLoaded.fire();
+        }, false);
+    }
