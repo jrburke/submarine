@@ -19,25 +19,18 @@ requirejs(['require'], function (require) {
   var express = require('express'),
       fs = require('fs'),
       path = require('path'),
-      io = require('socket.io'),
 
       wwwRoot = './phonegap/www',
       builtWwwRoot = wwwRoot + '/../www-built',
-      clients = require('./server/clients'),
       serverUrl = require('./server/serverUrl'),
+      socketServerUrl = require('./server/socketServerUrl'),
 
       penv = process.env,
       protocol = penv.SUBMARINEPROTOCOL || 'http',
       isHttps = protocol === 'https',
       port = penv.SUBMARINEPORT || penv.PORT,
 
-      app, listener, socketIoOptions;
-
-  socketIoOptions = {
-    // Figure out a good interaction with web sockets and https
-    // for now just use jsonp.
-    transports: ['jsonp-polling'] //['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
-  };
+      app;
 
   // Use built www if it is available.
   if (path.existsSync(builtWwwRoot)) {
@@ -45,8 +38,6 @@ requirejs(['require'], function (require) {
   }
 
   if (isHttps) {
-    socketIoOptions.secure = true;
-
     app = express.createServer({
       key: fs.readFileSync(penv.SUBMARINEKEY),
       cert: fs.readFileSync(penv.SUBMARINECERT),
@@ -62,8 +53,8 @@ requirejs(['require'], function (require) {
   function handleIndex(req, res) {
     // Read in index.html and replace remoteServerUrl with real URL
     var contents = fs.readFileSync(wwwRoot + '/index.html', 'utf8');
-    contents = contents.replace(/var remoteServerUrl = '[^']*'/,
-                                "var remoteServerUrl = '" + serverUrl + "'");
+    contents = contents.replace(/var remoteSocketServerUrl = '[^']*'/,
+                                "var remoteSocketServerUrl = '" + socketServerUrl + "'");
     res.send(contents);
   }
 
@@ -77,39 +68,5 @@ requirejs(['require'], function (require) {
 
   app.listen(port);
 
-  console.log('Listening on ' + protocol + '://127.0.0.1:' + port);
-
-  listener = io.listen(app, socketIoOptions);
-
-  listener.sockets.on('connection', function (client) {
-    //client.send({ buffer: buffer });
-    //client.broadcast({ announcement: client.sessionId + ' connected' });
-
-    client.on('serverMessage', function (message) {
-      message = JSON.parse(message);
-
-      require(['./server/actions/' + message.action], function (action) {
-        action(message, client);
-        //client.broadcast(msg);
-      });
-    });
-
-    client.on('disconnect', function () {
-      var id = client._deuxUserId,
-          clientList = clients[id],
-          index;
-
-      if (!id || !clientList || !clientList.length) {
-        //This client did not have a user ID associated with it, drop it.
-        return;
-      }
-
-      index = clientList.indexOf(client);
-      if (index === -1) {
-        console.log('HUH? Disconnect called, but cannot find client.');
-      } else {
-        clientList.splice(index, 1);
-      }
-    });
-  });
+  console.log('Listening on ' + serverUrl);
 });

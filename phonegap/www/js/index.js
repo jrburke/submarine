@@ -1,7 +1,7 @@
 
 /*jslint strict: false, indent: 2, plusplus: false, regexp: false */
 /*global define, navigator, console, google, window, alert, requirejs,
-  setInterval, localStorage, setTimeout, remoteServerUrl, location: true */
+  setInterval, localStorage, setTimeout, remoteSocketServerUrl, location: true */
 
 //Do not even bother if location is not supported.
 if (!navigator.geolocation) {
@@ -27,7 +27,7 @@ if (!navigator.geolocation) {
 
 requirejs.config({
   paths: {
-    'socket.io': remoteServerUrl + 'socket.io/socket.io',
+    'socket.io': remoteSocketServerUrl + 'socket.io/socket.io',
     'browserId': 'https://browserid.org/include'
   }
 });

@@ -27,3 +27,13 @@ If you want to run a https server:
 * export SUBMARINEKEY=/path/to/private/key
 * export SUBMARINECERT=/path/to/cert
 * export SUBMARINECA=/path/to/intermediate/certificate/ca
+
+The websocket server is run on a different port due to weirdness with
+node+https+static files.
+
+* export SUBMARINESOCKETPROTOCOL=https
+* export SUBMARINESOCKETHOST=some.host-or-ipaddr.ocm
+* export SUBMARINESOCKETPORT=8176
+* export SUBMARINESOCKETKEY=/path/to/private/key
+* export SUBMARINESOCKETCERT=/path/to/cert
+* export SUBMARINESOCKETCA=/path/to/intermediate/certificate/ca

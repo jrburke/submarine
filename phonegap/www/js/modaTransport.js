@@ -36,7 +36,7 @@
 
 /*jslint indent: 2, strict: false, nomen: false, plusplus: false */
 /*global define: false, localStorage: false, window: false, location: false,
-  console: false, document: false, remoteServerUrl: false */
+  console: false, document: false, remoteSocketServerUrl: false */
 
 define(function (require, exports) {
   var env = { name: 'browser' },
@@ -276,7 +276,7 @@ define(function (require, exports) {
     var foo = require.toUrl('socket.io');
 
     try {
-      socket = io.connect(url || remoteServerUrl || null, {
+      socket = io.connect(url || remoteSocketServerUrl || null, {
         rememberTransport: false,
         transports: ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile']
       });

@@ -7,9 +7,9 @@
 define(function (require) {
   var penv = process.env;
   // Just use one object by all to hold on to clients.
-  return (penv.SUBMARINEPROTOCOL || 'http') + '://' +
-         (penv.SUBMARINEHOST || '127.0.0.1') +
-         (penv.SUBMARINEPORT || penv.PORT ? ':' +
-         (penv.SUBMARINEPORT || penv.PORT) : '') +
+  return (penv.SUBMARINESOCKETPROTOCOL || 'http') + '://' +
+         (penv.SUBMARINESOCKETHOST || '127.0.0.1') +
+         (penv.SUBMARINESOCKETPORT || penv.PORT ? ':' +
+         (penv.SUBMARINESOCKETPORT || penv.PORT) : '') +
          '/';
 });
