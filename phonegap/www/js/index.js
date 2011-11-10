@@ -321,6 +321,15 @@ define(function (require) {
 
     'signIn': function (data, dom) {
 
+      // Fill in the phone number for the user.
+      window.plugins.phoneNumber.fetch(function (phoneNumber) {
+        var number = phoneNumber.number;
+
+        dom.find('.phoneNumberDisplay').text(number);
+        dom.find('.phoneNumberValue').val(number);
+      }, function (err) {
+      });
+
       // Create an explicit click handler to help some iphone devices,
       // event bubbling does not allow the window to open.
       dom.find('.browserSignIn')
@@ -639,7 +648,6 @@ define(function (require) {
       })
       .delegate('.signInForm .imgPreview', 'click', function (evt) {
         //Rotate by 90 degrees
-        console.log('imgPreview click');
         if (ctx) {
           currentRotation += 90;
           var x = 0,
@@ -663,8 +671,6 @@ define(function (require) {
             width = img.height;
             height = img.width;
           }
-
-          console.log("ROTATING2: " + currentRotation);
 
           canvasNode.setAttribute('width', width);
           canvasNode.setAttribute('height', height);
