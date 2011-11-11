@@ -1,5 +1,5 @@
 /*jslint strict: false, indent: 2 */
-/*global navigator: false, setTimeout: false */
+/*global navigator, window, setTimeout */
 
 // Create dummy shims for things used in mobile phones,
 // so that the UI can be debugged in desktop browser.
@@ -42,5 +42,21 @@ if (!navigator.sms) {
 if (!navigator.sms.send) {
   navigator.sms.send = function () {
     //no-op
+  };
+}
+
+if (!window.plugins) {
+  window.plugins = {};
+}
+
+if (!window.plugins.account) {
+  window.plugins.account = {
+    fetch: function (cb) {
+      setTimeout(function () {
+        cb({
+          name: 'jane@example.com'
+        });
+      }, 10);
+    }
   };
 }

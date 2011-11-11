@@ -3,7 +3,7 @@
  * Top level file for loading up all the phonegap-related files and wiring
  * them together.
  */
-define(['./phonegap', './SMSComposer', './ContactView', './PhoneNumber'], function () {
+define(['./phonegap', './SMSComposer', './ContactView', './Account'], function () {
 
   PhoneGap.addConstructor(function() {
     // Set up chooseContact so that it works like iOS.

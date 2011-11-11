@@ -52,6 +52,7 @@ define(function (require) {
       moda = require('moda'),
       cards = require('cards'),
       friendly = require('friendly'),
+      md5 = require('md5'),
       maps = require('maps!sensor=true&libraries=geometry'),
       LatLng = maps.LatLng,
       spherical = maps.geometry.spherical,
@@ -67,6 +68,8 @@ define(function (require) {
       spread = 5,
 
       camera = navigator.camera,
+      currentRotation = 0,
+      canvasNode, ctx, img,
 
       masterMap, masterMarker, watchId, update, init, nodelessActions, notifyDom,
       currentConvId, messageCloneNode, smsContact,
@@ -313,6 +316,54 @@ define(function (require) {
     }, 100);
   }
 
+  function getGravatar(email) {
+    return 'http://www.gravatar.com/avatar/' +
+              md5.hex_md5(email.trim().toLowerCase());
+  }
+
+
+  function updateImgPreview() {
+    if (ctx) {
+      var x = 0,
+          y = 0,
+          width = img.width,
+          height = img.height;
+
+      if (currentRotation > 359) {
+        currentRotation -= 360;
+      }
+
+      if (currentRotation === 90) {
+        y = -height;
+        width = img.height;
+        height = img.width;
+      } else if (currentRotation === 180) {
+        x = -width;
+        y = -height;
+      } else if (currentRotation === 270) {
+        x = -width;
+        width = img.height;
+        height = img.width;
+      }
+
+      canvasNode.setAttribute('width', width);
+      canvasNode.setAttribute('height', height);
+
+      ctx.rotate(currentRotation * Math.PI / 180);
+      ctx.drawImage(img, x, y);
+    }
+  }
+
+  function loadImgPreview(url) {
+    img = new Image();
+
+    img.onload = function () {
+      currentRotation = 0;
+      updateImgPreview();
+    };
+    img.src = url;
+  }
+
   // Set up card update actions.
   update = {
     'signOut': function (data, dom) {
@@ -321,17 +372,27 @@ define(function (require) {
 
     'signIn': function (data, dom) {
 
-      // Fill in the phone number for the user.
-      window.plugins.phoneNumber.fetch(function (phoneNumber) {
-        var number = phoneNumber.number;
+      //Grab the area to use as a preview.
+      canvasNode = dom.find('.imgPreview')[0];
+      ctx = canvasNode.getContext('2d');
 
-        dom.find('.phoneNumberDisplay').text(number);
-        dom.find('.phoneNumberValue').val(number);
-      }, function (err) {
+      // Fill in the phone number for the user.
+      window.plugins.account.fetch(function (account) {
+
+        //The name is (always?) an email address
+        dom.find('[name="email"]').val(account.name);
+
+        var pic = getGravatar(account.name);
+
+        console.log('pic: ' + pic);
+
+        dom.find('[name="pic"]').val(pic);
+        loadImgPreview(pic);
       });
 
       // Create an explicit click handler to help some iphone devices,
       // event bubbling does not allow the window to open.
+      /*
       dom.find('.browserSignIn')
         .click(function (evt) {
           evt.preventDefault();
@@ -344,6 +405,7 @@ define(function (require) {
             }
           });
         });
+      */
     },
 
     'start': function (data, dom) {
@@ -631,53 +693,35 @@ define(function (require) {
       notifyDom = $('#notify');
     };
 
-    var canvasNode, ctx, img, currentRotation = 90;
-
     //Do event wiring here.
     $('body')
       .delegate('.signInForm', 'submit', function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
 
-        var formNode = evt.target;
+        var formNode = evt.target,
+            displayName = formNode.displayName.value.trim(),
+            email = formNode.email.value.trim(),
+            pic = formNode.pic.value.trim();
+
+        if (!displayName || !email) {
+          return;
+        }
+
+        if (!pic) {
+          pic = getGravatar(email);
+        }
 
         moda.signInHack({
-          displayName: formNode.displayName.value,
-          email: formNode.email.value
+          displayName: displayName,
+          email: email,
+          pic: pic
         });
       })
-      .delegate('.signInForm .imgPreview', 'click', function (evt) {
+      .delegate('.signInForm .pictureRotate', 'click', function (evt) {
         //Rotate by 90 degrees
-        if (ctx) {
-          currentRotation += 90;
-          var x = 0,
-              y = 0,
-              width = img.width,
-              height = img.height;
-
-          if (currentRotation > 359) {
-            currentRotation -= 360;
-          }
-
-          if (currentRotation === 90) {
-            y = -height;
-            width = img.height;
-            height = img.width;
-          } else if (currentRotation === 180) {
-            x = -width;
-            y = -height;
-          } else if (currentRotation === 270) {
-            x = -width;
-            width = img.height;
-            height = img.width;
-          }
-
-          canvasNode.setAttribute('width', width);
-          canvasNode.setAttribute('height', height);
-
-          ctx.rotate(currentRotation * Math.PI / 180);
-          ctx.drawImage(img, x, y);
-        }
+        currentRotation += 90;
+        updateImgPreview();
       })
       // Handle click to get picture
       .delegate('.signInForm .pictureCapture', 'click', function (evt) {
@@ -687,20 +731,7 @@ define(function (require) {
         var formNode = evt.target.parentNode;
 
         camera.getPicture(function (base64Data) {
-          canvasNode = $(formNode).find('.imgPreview')[0];
-          img = new Image();
-          ctx = canvasNode.getContext('2d');
-
-          img.onload = function () {
-            // Draw the image into the canvas.
-            canvasNode.setAttribute('width', img.height);
-            canvasNode.setAttribute('height', img.width);
-
-            ctx.rotate(currentRotation * Math.PI / 180);
-            ctx.drawImage(img, 0, -img.height);
-          };
-          img.src = 'data:image/jpeg;base64,' + base64Data;
-
+          loadImgPreview('data:image/jpeg;base64,' + base64Data);
         }, function (err) {
 
         }, {

@@ -4,7 +4,6 @@
 
 define(function (require) {
   var redis = require('../redis'),
-      md5 = require('../md5'),
       clients = require('../clients'),
       clientSend = require('../clientSend');
 
@@ -45,8 +44,7 @@ define(function (require) {
 
         id = assertionData.email;
         displayName = assertionData.displayName;
-        pic = 'http://www.gravatar.com/avatar/' +
-              md5.hex_md5(id.trim().toLowerCase());
+        pic = assertionData.pic;
 
         // Store the user data for next request.
         redis.set('browserid-assertion-hack-' + assertionData.email, id);

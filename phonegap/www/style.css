@@ -46,6 +46,11 @@ button.invisible {
   visibility: hidden;
 }
 
+input:focus,
+button:focus {
+    outline: none;
+}
+
 button,
 input,
 textarea {

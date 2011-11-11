@@ -18,4 +18,5 @@
     <plugin name="Capture" value="com.phonegap.Capture"/>
     <plugin name="ContactView" value="com.rearden.ContactView"/>
     <plugin name="PhoneNumber" value="com.mozilla.submarine.PhoneNumber"/>
+    <plugin name="Account" value="com.mozilla.submarine.AccountPlugin"/>
 </plugins>
